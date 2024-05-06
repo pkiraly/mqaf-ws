@@ -1,0 +1,126 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.gwdg.metadataqa</groupId>
+	<artifactId>mqaf-ws</artifactId>
+	<packaging>war</packaging>
+	<version>0.1-SNAPSHOT</version>
+	<name>Metadata Quality Aassessment Framework Web Service</name>
+	<description>
+		Metadata Quality Aassessment Framework Web Service.
+	</description>
+	<developers>
+		<developer>
+			<name>Péter Király</name>
+			<email>peter.kiraly@gwdg.de</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<organization>
+				Gesellschaft für wissenschaftliche Datenverarbeitung mbH Göttingen (GWDG)
+			</organization>
+			<organizationUrl>http://gwdg.de/</organizationUrl>
+		</developer>
+	</developers>
+	<url>http://pkiraly.github.io</url>
+
+	<licenses>
+		<license>
+			<name>GNU General Public License, Version 3.0</name>
+			<url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:git@github.com:pkiraly/mqaf-ws.git</connection>
+		<developerConnection>scm:git:git@github.com:pkiraly/mqaf-ws.git</developerConnection>
+		<url>http://github.com/pkiraly/mqaf-ws</url>
+	</scm>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<!--
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+		-->
+	</distributionManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<java.version>17</java.version>
+		<checkstyle.failOnError>false</checkstyle.failOnError>
+		<checkstyle.consoleOutput>true</checkstyle.consoleOutput>
+
+		<project.timezone>UTC</project.timezone>
+		<project.language>en</project.language>
+		<project.region>US</project.region>
+		<argLine>-Duser.timezone=${project.timezone} -Dfile.encoding=${project.build.sourceEncoding} -Duser.language=${project.language} -Duser.region=${project.region}</argLine>
+		<bootstrap.version>4.2.1</bootstrap.version>
+
+		<start.class>de.gwdg.metadataqa.ws.MqafController</start.class>
+	</properties>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.gwdg.metadataqa</groupId>
+			<artifactId>metadata-qa-api</artifactId>
+			<version>0.9.5-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>mqaf-ws</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
