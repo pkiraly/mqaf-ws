@@ -22,9 +22,6 @@ The REST API endpoint is available at https://YOURSERVER/ws/validate
 You can use the following parameters (see more details [here](https://github.com/pkiraly/metadata-qa-marc#validating-marc-records)):
 
     @RequestParam(value = "headers", defaultValue = "") String headers,
-    @RequestParam(value = "outputFormat", defaultValue = "ndjson") String outputFormat,
-    @RequestParam(value = "output", defaultValue = "") String output,
-    @RequestParam(value = "recordAddress", defaultValue = "") String recordAddress
 
 * `schemaFile` (optional, String, default: "") The schema configuration file
 * `schemaFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
@@ -36,6 +33,8 @@ You can use the following parameters (see more details [here](https://github.com
     (it can be used if the `inputFile` is an XML file)
 * `output` (optional, String) The output file
 * `outputFormat` (optional, String, defaultValue = "csv") The output format
+* `headers` (optional, String) A comma spearated string denoting the header of the input CSV 
+   (if the input is a CSV file without header line)
 
 Validate a binary marc file in pure MARC21 schema:
 ```
