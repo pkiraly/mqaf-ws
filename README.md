@@ -21,8 +21,6 @@ The REST API endpoint is available at https://YOURSERVER/ws/validate
 
 You can use the following parameters (see more details [here](https://github.com/pkiraly/metadata-qa-marc#validating-marc-records)):
 
-    @RequestParam(value = "headers", defaultValue = "") String headers,
-
 * `schemaFile` (optional, String, default: "") The schema configuration file
 * `schemaFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
 * `measurements` (optional, String, default: "") The measurement configuration file
@@ -50,4 +48,28 @@ curl -X POST \
      -F 'outputFormat=CSV' \
      -F 'output=${DIR}/output.csv' \
      http://localhost:8080/mqaf-ws/validate
+```
+
+## Docker
+
+The application is available as a docker image `pkiraly/mqaf-ws:latest`. It has two volumes:
+- `INPUT` (default: `./input`) that points to the container's `/opt/metadata-qa/input`. This is the location of the 
+   input files, the user can set relative path in `inputFile`, `schemaFile` and `measurements``properties.
+- `OUTPUT` (default: `./output`) that points to the container's `/opt/metadata-qa/output`. This is the directory 
+   where the API puts the output file.
+
+The application runs an Apache Tomcat server which is available internally on oprt 8080. To launch the application you 
+can execute the following command:
+
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -v ./input:/opt/mqaf-ws/input \
+  -v ./output:/opt/mqaf-ws/output \
+  --name mqaf-ws pkiraly/mqaf-ws
+```
+or if you use the reporitory's `docker-compose.yml` file:
+
+```bash
+docker compose up
 ```

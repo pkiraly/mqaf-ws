@@ -1,12 +1,12 @@
 services:
   app:
-    image: mqaf-ws               # the name of the image
+    image: ${IMAGE:-pkiraly/mqaf-ws:latest} # the name of the image
     build:
-      context: .                 # create from the working directory
+      context: .                            # create from the working directory
       dockerfile: Dockerfile
     volumes:
       - ./${INPUT:-input}:/opt/metadata-qa/input
       - ./${OUTPUT:-output}:/opt/metadata-qa/output
     ports:
-      - "${WEBPORT:-8080}:8080"  # /mqaf-ws
+      - "${WEBPORT:-8080}:8080"             # Tomcat address
     container_name: ${CONTAINER:-mqaf-ws}
