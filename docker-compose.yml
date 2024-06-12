@@ -1,0 +1,12 @@
+services:
+  app:
+    image: mqaf-ws               # the name of the image
+    build:
+      context: .                 # create from the working directory
+      dockerfile: Dockerfile
+    volumes:
+      - ./${INPUT:-input}:/opt/metadata-qa/input
+      - ./${OUTPUT:-output}:/opt/metadata-qa/output
+    ports:
+      - "${WEBPORT:-8080}:8080"  # /mqaf-ws
+    container_name: ${CONTAINER:-mqaf-ws}
