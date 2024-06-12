@@ -64,8 +64,8 @@ can execute the following command:
 ```bash
 docker run -d \
   -p 8080:8080 \
-  -v ./input:/opt/mqaf-ws/input \
-  -v ./output:/opt/mqaf-ws/output \
+  -v ./input:/opt/metadata-qa/input \
+  -v ./output:/opt/metadata-qa/output \
   --name mqaf-ws pkiraly/mqaf-ws
 ```
 or if you use the reporitory's `docker-compose.yml` file:
