@@ -1,6 +1,7 @@
 package de.gwdg.metadataqa.ws;
 
 import de.gwdg.metadataqa.api.calculator.CalculatorFacade;
+import de.gwdg.metadataqa.api.cli.App;
 import de.gwdg.metadataqa.api.cli.RecordFactory;
 import de.gwdg.metadataqa.api.configuration.ConfigurationReader;
 import de.gwdg.metadataqa.api.configuration.MeasurementConfiguration;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static de.gwdg.metadataqa.api.cli.App.*;
 import static de.gwdg.metadataqa.api.cli.App.JSON;
 import static de.gwdg.metadataqa.api.cli.App.YAML;
 
@@ -77,65 +79,61 @@ public class MqafController {
     @RequestParam(value = "measurementsFile", defaultValue = "") String measurementsFile,
     @RequestParam(value = "measurementsFormat", defaultValue = "") String measurementsFormat,
     @RequestParam(value = "inputFile", defaultValue = "") String inputFile,
+    @RequestParam(value = "inputFormat", defaultValue = "") String inputFormat,
     @RequestParam(value = "gzip", defaultValue = "false") boolean gzip,
     @RequestParam(value = "outputFormat", defaultValue = "ndjson") String outputFormat,
     @RequestParam(value = "output", defaultValue = "") String outputFile,
     @RequestParam(value = "recordAddress", defaultValue = "") String recordAddress,
     Model model
-  ) throws IOException {
-    logger.info(String.format("gzip: %s", gzip));
-    // String schemaFile = cmd.getOptionValue(SCHEMA_CONFIG);
-    // String schemaFormat = cmd.getOptionValue(SCHEMA_FORMAT, FilenameUtils.getExtension(schemaFile));
-    Schema schema = getSchema(schemaContent, getInputFile(schemaFile), schemaFormat);
+  ) {
+    try {
+      logger.info(String.format("gzip: %s", gzip));
+      // String schemaFile = cmd.getOptionValue(SCHEMA_CONFIG);
+      // String schemaFormat = cmd.getOptionValue(SCHEMA_FORMAT, FilenameUtils.getExtension(schemaFile));
+      Schema schema = getSchema(schemaContent, getInputFile(schemaFile), schemaFormat);
 
-    // initialize config
-    MeasurementConfiguration measurementConfig = getMeasurementConfiguration(measurementsContent, getInputFile(measurementsFile), measurementsFormat);
-    logger.info(String.format("isUniquenessMeasurementEnabled: %s", measurementConfig.isUniquenessMeasurementEnabled()));
+      // initialize config
+      MeasurementConfiguration measurementConfig = getMeasurementConfiguration(measurementsContent, getInputFile(measurementsFile), measurementsFormat);
+      logger.info(String.format("isUniquenessMeasurementEnabled: %s", measurementConfig.isUniquenessMeasurementEnabled()));
 
-    // Set the fields supplied by the command line to extractable fields
-    if (!headers.equals("")) {
-      String[] headersList = StringUtils.split(headers, ",");
-      for (String h : headersList) {
-        schema.addExtractableField(h, schema.getPathByLabel(h).getPath());
+      // Set the fields supplied by the command line to extractable fields
+      if (!headers.equals("")) {
+        String[] headersList = StringUtils.split(headers, ",");
+        for (String h : headersList) {
+          schema.addExtractableField(h, schema.getPathByLabel(h).getPath());
+        }
       }
-    }
 
-    // initialize calculator
-    CalculatorFacade calculator = new CalculatorFacade(measurementConfig);
-    // set the schema which describes the source
-    calculator.setSchema(schema);
+      // initialize calculator
+      CalculatorFacade calculator = new CalculatorFacade(measurementConfig);
+      // set the schema which describes the source
+      calculator.setSchema(schema);
+      logger.info("setSchema");
 
-    // initialize input
-    RecordReader inputReader;
-    try {
-      inputReader = RecordFactory.getRecordReader(getInputFile(inputFile), calculator, gzip);
-    } catch (CsvValidationException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+      // initialize input
+      App.InputFormat inputFormatEnum = App.InputFormat.byCode(inputFormat);
+      RecordReader inputReader = RecordFactory.getRecordReader(getInputFile(inputFile), calculator, gzip, inputFormatEnum);
+      // RecordReader inputReader = RecordFactory.getRecordReader(getInputFile(inputFile), calculator, gzip);
+      logger.info("create inputReader");
 
-    // initialize output
-    // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
-    // write to std out if no file was given
-    String outputDir = mqafConfiguration.getOutputDir();
-    if (StringUtils.isNotBlank(outputFile) && StringUtils.isNoneBlank(outputDir) && (new File(outputDir)).exists()) {
-      String separator = (outputDir.endsWith("/")) ? "" : "/";
-      outputFile = outputDir + separator + outputFile;
-    }
-    ResultWriter outputWriter = !outputFile.equals("")
-      ? RecordFactory.getResultWriter(outputFormat, outputFile)
-      : RecordFactory.getResultWriter(outputFormat);
+      // initialize output
+      // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
+      // write to std out if no file was given
+      String outputDir = mqafConfiguration.getOutputDir();
+      if (StringUtils.isNotBlank(outputFile) && StringUtils.isNoneBlank(outputDir) && (new File(outputDir)).exists()) {
+        String separator = (outputDir.endsWith("/")) ? "" : "/";
+        outputFile = outputDir + separator + outputFile;
+      }
+      ResultWriter outputWriter = !outputFile.equals("")
+        ? RecordFactory.getResultWriter(outputFormat, outputFile)
+        : RecordFactory.getResultWriter(outputFormat);
 
-    if (recordAddress.equals(""))
-      recordAddress = null;
-    if (inputReader instanceof XMLRecordReader && recordAddress != null)
-      ((XMLRecordReader)inputReader).setRecordAddress(recordAddress);
+      if (recordAddress.equals(""))
+        recordAddress = null;
+      if (inputReader instanceof XMLRecordReader && recordAddress != null)
+        ((XMLRecordReader)inputReader).setRecordAddress(recordAddress);
 
-    // run
-    long counter = 0;
-    try {
-      // print header
+      long counter = 0;
       List<String> header = calculator.getHeader();
       outputWriter.writeHeader(header);
 
@@ -151,18 +149,29 @@ public class MqafController {
       }
       logger.info(String.format("Assessment completed successfully with %s records. ", counter));
       outputWriter.close();
-    } catch (IOException e) {
-      logger.severe(String.format("Assessment failed with %s records. ", counter));
-      logger.severe(e.getMessage());
+
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.set("Content-Type", MediaType.APPLICATION_JSON.toString());
+
+      return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_JSON)
+        .headers(responseHeaders)
+        .body("{result: 1}");
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      // logger.severe(String.format("Assessment failed with %s records. ", counter));
+      logger.severe(String.format("Assessment failed"));
+      logger.severe(e.getClass() + " " + e.getMessage());
+
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.set("Content-Type", MediaType.APPLICATION_JSON.toString());
+
+      return ResponseEntity.internalServerError()
+        .contentType(MediaType.APPLICATION_JSON)
+        .headers(responseHeaders)
+        .body(String.format("{result: %s}", e.getMessage()));
     }
-
-    HttpHeaders responseHeaders = new HttpHeaders();
-    responseHeaders.set("Content-Type", MediaType.APPLICATION_JSON.toString());
-
-    return ResponseEntity.ok()
-      .contentType(MediaType.APPLICATION_JSON)
-      .headers(responseHeaders)
-      .body("{result: 1}");
   }
 
   private String getInputFile(String inputFile) {
@@ -174,10 +183,14 @@ public class MqafController {
     return inputFile;
   }
 
-  private static MeasurementConfiguration getMeasurementConfiguration(String measurementsContent, String measurementsFile, String measurementsFormat) throws FileNotFoundException {
+  private static MeasurementConfiguration getMeasurementConfiguration(String measurementsContent,
+                                                                      String measurementsFile,
+                                                                      String measurementsFormat)
+      throws FileNotFoundException {
     MeasurementConfiguration measurementConfig;
     if (measurementsFile != null && !measurementsFile.isEmpty()) {
       logger.info("Read MeasurementConfiguration from file: " + measurementsFile);
+      logger.info("measurementsFormat: " + measurementsFormat);
       switch (measurementsFormat) {
         case YAML: measurementConfig = ConfigurationReader.readMeasurementJson(measurementsFile); break;
         case JSON:
@@ -190,6 +203,7 @@ public class MqafController {
         default:   measurementConfig = loadJson(measurementsContent, MeasurementConfiguration.class);
       }
     }
+    logger.info("MeasurementConfiguration done");
     return measurementConfig;
   }
 

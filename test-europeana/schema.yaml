@@ -1,0 +1,13 @@
+format: JSON
+fields:
+  # Missing lang tag
+  - name: id
+    path: $.['object']['about']
+    extractable: true
+  - name: dc:title
+    path: $.['object']['proxies'][?(@['europeanaProxy'] == false)]['dcTitle'][*]
+    extractable: true
+    rules:
+      - id: missingLangTag
+        description: "Field is missing the language tag"
+        pattern: ".*@[a-zA-Z]{2,3}"
