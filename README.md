@@ -26,6 +26,9 @@ You can use the following parameters (see more details [here](https://github.com
 * `measurements` (optional, String, default: "") The measurement configuration file
 * `measurementsFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
 * `inputFile` (optional, String) The input file
+* `inputFormat` (optional, String) The format of input file. Right now it supports two JSON variants:
+  * `ndjson`: line delimited JSON in which every line is a new record (the default value)
+  * `json-array`: JSON file that contains an array of objects
 * `gzip` (optional, boolean) A flag to denote if the input file is gzipped
 * `recordAddress` (optional, String) The XPath expression that separates individual records within an XML file 
     (it can be used if the `inputFile` is an XML file)
