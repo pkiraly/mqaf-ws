@@ -15,7 +15,13 @@ echo "build image"
 docker-compose -f docker-compose.yml build app
 
 echo "run container"
-docker run -d -p 8080:8080 -v ./test-europeana:/opt/metadata-qa/input --name mqaf-ws pkiraly/mqaf-ws
+if [[ ! -d test-europeana/output ]]; then
+  mkdir test-europeana/output
+fi
+docker run -d -p 8080:8080 \
+  -v ./test-europeana:/opt/metadata-qa/input \
+  -v ./test-europeana/output:/opt/metadata-qa/output \
+  --name mqaf-ws pkiraly/mqaf-ws
 
 sleep 3
 
