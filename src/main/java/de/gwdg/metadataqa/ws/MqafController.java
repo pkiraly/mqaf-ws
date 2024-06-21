@@ -2,6 +2,7 @@ package de.gwdg.metadataqa.ws;
 
 import de.gwdg.metadataqa.api.calculator.CalculatorFacade;
 import de.gwdg.metadataqa.api.cli.App;
+import de.gwdg.metadataqa.api.cli.InputFormat;
 import de.gwdg.metadataqa.api.cli.RecordFactory;
 import de.gwdg.metadataqa.api.configuration.ConfigurationReader;
 import de.gwdg.metadataqa.api.configuration.MeasurementConfiguration;
@@ -111,7 +112,7 @@ public class MqafController {
       logger.info("setSchema");
 
       // initialize input
-      App.InputFormat inputFormatEnum = App.InputFormat.byCode(inputFormat);
+      InputFormat inputFormatEnum = InputFormat.byCode(inputFormat);
       RecordReader inputReader = RecordFactory.getRecordReader(getInputFile(inputFile), calculator, gzip, inputFormatEnum);
       // RecordReader inputReader = RecordFactory.getRecordReader(getInputFile(inputFile), calculator, gzip);
       logger.info("create inputReader");
