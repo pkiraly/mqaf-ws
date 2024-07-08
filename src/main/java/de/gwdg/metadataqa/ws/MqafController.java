@@ -10,6 +10,7 @@ import de.gwdg.metadataqa.api.io.reader.RecordReader;
 import de.gwdg.metadataqa.api.io.reader.XMLRecordReader;
 import de.gwdg.metadataqa.api.io.writer.ResultWriter;
 import de.gwdg.metadataqa.api.json.DataElement;
+import de.gwdg.metadataqa.api.rule.RuleCheckingOutputType;
 import de.gwdg.metadataqa.api.schema.Schema;
 
 import de.gwdg.metadataqa.ws.dao.InputParameters;
@@ -27,10 +28,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+
+import static java.awt.SystemColor.text;
 
 @RestController
 public class MqafController {
@@ -157,30 +166,73 @@ public class MqafController {
 
   private void postProcess(InputParameters inputParameters) throws IOException {
     logger.info("postProcess()");
-    int id = 0;
-    for (DataElement dataElement : inputParameters.getSchema().getPaths()) {
-      List<Rule> rules = dataElement.getRules();
-      if (rules != null) {
-        for (Rule rule : rules) {
-          logger.info(rule.getId());
-        }
-      }
-    }
+    createDatabaseDefinition(inputParameters);
     List<String> commands = List.of(
       String.format("php /opt/metadata-qa/scripts/csv2sql.php %s %s > %s/%s",
         inputParameters.getOutputFilePath(), "output", inputParameters.getOutputDir(), "output.sql"),
-      "/opt/metadata-qa/scripts/hello-world.sh > /opt/metadata-qa/output/hello-world.txt"
+      String.format("/opt/metadata-qa/scripts/hello-world.sh > %s/hello-world.txt", inputParameters.getOutputDir()),
+      String.format("chmod 644 -R %s", inputParameters.getOutputDir())
     );
     Process process = null;
     try {
       for (String command : commands) {
         process = Runtime.getRuntime().exec(command);
-        System.err.println(process);
+        TimeUnit.SECONDS.sleep(1);
+        if (process.exitValue() != 0) {
+          logger.info(command);
+          System.err.println(process.getErrorStream().transferTo(System.out));
+        }
       }
     } catch (IOException e) {
       e.printStackTrace();
       throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  private static void createDatabaseDefinition(InputParameters inputParameters) {
+    RuleCheckingOutputType outPutType = inputParameters.getMeasurementConfig().getRuleCheckingOutputType();
+    logger.info("outPutType: " + outPutType.toString());
+    Map<String, String> mapping = new LinkedHashMap<>();
+    // List<String> fields = new ArrayList<>();
+    for (DataElement dataElement : inputParameters.getSchema().getPaths()) {
+      if (dataElement.isExtractable()) {
+        mapping.put(dataElement.getLabel(), "VARCHAR(255)");
+        // logger.info(dataElement.getLabel());
+      }
+      List<Rule> rules = dataElement.getRules();
+      if (rules != null) {
+        for (Rule rule : rules) {
+          if (outPutType.equals(RuleCheckingOutputType.STATUS)) {
+            mapping.put(rule.getId() + ":status", "BOOLEAN");
+          } else if (outPutType.equals(RuleCheckingOutputType.SCORE)) {
+            mapping.put(rule.getId() + ":score", "INTEGER");
+          } else {
+            mapping.put(rule.getId() + ":status", "BOOLEAN");
+            mapping.put(rule.getId() + ":score", "INTEGER");
+          }
+          logger.info(rule.getId());
+        }
+      }
+    }
+    mapping.put("rulecatalog_score", "INTEGER");
+
+    try (PrintWriter out = new PrintWriter(inputParameters.getOutputDir() + "/output-definition.sql")) {
+      out.println(createDatabaseDefinitionSQL(mapping));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static String createDatabaseDefinitionSQL(Map<String, String> mapping) {
+    List<String> lines = new ArrayList<>();
+    lines.add("CREATE TABLE %s (");
+    for (Map.Entry<String, String> entry : mapping.entrySet())
+      lines.add(String.format("  \"%s\" %s,", entry.getKey(), entry.getValue()));
+    lines.add(");");
+    return StringUtils.join(lines, "\n");
   }
 
   private String getInputFilePath(String inputFile) {

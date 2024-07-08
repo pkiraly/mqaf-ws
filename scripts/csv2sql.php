@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * Create
  */
 define('LN', "\n");
 
@@ -31,11 +31,18 @@ function processCsv($csvFile, $table, $out) {
       $values = str_getcsv($line);
       if ($lineNumber == 1) {
         $columns = $values;
+        // file_put_contents($out, "--- TABLE definition\n", FILE_APPEND);
+        // file_put_contents($out, createTableDefinition($table, $columns), FILE_APPEND);
+        // file_put_contents($out, "\n--- RECORDS\n", FILE_APPEND);
       } else {
         if (count($columns) != count($values)) {
           error_log(sprintf('error in %s line #%d: %d vs %d', $csvFile, $lineNumber, count($columns), count($values)));
         } else {
-          $sql = sprintf("INSERT INTO %s (`%s`) VALUES (%s);\n", $table, join('`,`', $columns), str_putcsv2($values, ',', '"', $columns));
+          $sql = sprintf("INSERT INTO %s (`%s`) VALUES (%s);\n",
+            $table,
+            join('`,`', $columns),
+            str_putcsv2($values, ',', '"', $columns)
+          );
           file_put_contents($out, $sql, FILE_APPEND);
         }
       }
@@ -44,6 +51,16 @@ function processCsv($csvFile, $table, $out) {
     error_log('file does not exist! ' . $csvFile);
   }
   return $records;
+}
+
+function createTableDefinition($table, array $columns) {
+  $definition = sprintf("CREATE TABLE %s (\n", $table);
+  $fields = [];
+  foreach ($columns as $column) {
+    $fields[] = sprintf("  %s VARCHAR(255)", $column);
+  }
+  $definition .= join($fields, ",\n") . "\n);\n";
+  return $definition;
 }
 
 function str_putcsv2(array $input, $delimiter = ',', $enclosure = '"', $columns) {

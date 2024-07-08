@@ -42,6 +42,10 @@ public class InputParameters {
     return outputFilePath;
   }
 
+  public MeasurementConfiguration getMeasurementConfig() {
+    return measurementConfig;
+  }
+
   public Schema createSchema(String schemaContent, String schemaFile, String schemaFormat) throws FileNotFoundException {
     try {
       if (schemaFile != null && !schemaFile.isEmpty()) {
