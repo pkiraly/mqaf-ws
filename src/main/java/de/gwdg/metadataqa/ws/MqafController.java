@@ -1,24 +1,18 @@
 package de.gwdg.metadataqa.ws;
 
 import de.gwdg.metadataqa.api.calculator.CalculatorFacade;
-import de.gwdg.metadataqa.api.cli.App;
 import de.gwdg.metadataqa.api.cli.InputFormat;
 import de.gwdg.metadataqa.api.cli.RecordFactory;
-import de.gwdg.metadataqa.api.configuration.ConfigurationReader;
 import de.gwdg.metadataqa.api.configuration.MeasurementConfiguration;
-import de.gwdg.metadataqa.api.configuration.SchemaConfiguration;
+import de.gwdg.metadataqa.api.configuration.schema.Rule;
 import de.gwdg.metadataqa.api.interfaces.MetricResult;
 import de.gwdg.metadataqa.api.io.reader.RecordReader;
 import de.gwdg.metadataqa.api.io.reader.XMLRecordReader;
 import de.gwdg.metadataqa.api.io.writer.ResultWriter;
+import de.gwdg.metadataqa.api.json.DataElement;
 import de.gwdg.metadataqa.api.schema.Schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.opencsv.exceptions.CsvValidationException;
-
-import org.apache.commons.io.IOUtils;
+import de.gwdg.metadataqa.ws.dao.InputParameters;
 import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -31,23 +25,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.multipart.MultipartFile;
-
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import static de.gwdg.metadataqa.api.cli.App.*;
-import static de.gwdg.metadataqa.api.cli.App.JSON;
-import static de.gwdg.metadataqa.api.cli.App.YAML;
 
 @RestController
 public class MqafController {
@@ -88,13 +71,14 @@ public class MqafController {
     Model model
   ) {
     try {
+      InputParameters inputParameters = new InputParameters(mqafConfiguration);
       logger.info(String.format("gzip: %s", gzip));
-      // String schemaFile = cmd.getOptionValue(SCHEMA_CONFIG);
-      // String schemaFormat = cmd.getOptionValue(SCHEMA_FORMAT, FilenameUtils.getExtension(schemaFile));
-      Schema schema = getSchema(schemaContent, getInputFile(schemaFile), schemaFormat);
+
+      Schema schema = inputParameters.createSchema(schemaContent, getInputFilePath(schemaFile), schemaFormat);
 
       // initialize config
-      MeasurementConfiguration measurementConfig = getMeasurementConfiguration(measurementsContent, getInputFile(measurementsFile), measurementsFormat);
+      MeasurementConfiguration measurementConfig = inputParameters.createMeasurementConfiguration(
+        measurementsContent, getInputFilePath(measurementsFile), measurementsFormat);
       logger.info(String.format("isUniquenessMeasurementEnabled: %s", measurementConfig.isUniquenessMeasurementEnabled()));
 
       // Set the fields supplied by the command line to extractable fields
@@ -109,22 +93,16 @@ public class MqafController {
       CalculatorFacade calculator = new CalculatorFacade(measurementConfig);
       // set the schema which describes the source
       calculator.setSchema(schema);
-      logger.info("setSchema");
 
       // initialize input
       InputFormat inputFormatEnum = InputFormat.byCode(inputFormat);
-      RecordReader inputReader = RecordFactory.getRecordReader(getInputFile(inputFile), calculator, gzip, inputFormatEnum);
-      // RecordReader inputReader = RecordFactory.getRecordReader(getInputFile(inputFile), calculator, gzip);
-      logger.info("create inputReader");
+      RecordReader inputReader = RecordFactory.getRecordReader(getInputFilePath(inputFile), calculator, gzip, inputFormatEnum);
 
       // initialize output
       // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
       // write to std out if no file was given
-      String outputDir = mqafConfiguration.getOutputDir();
-      if (StringUtils.isNotBlank(outputFile) && StringUtils.isNoneBlank(outputDir) && (new File(outputDir)).exists()) {
-        String separator = (outputDir.endsWith("/")) ? "" : "/";
-        outputFile = outputDir + separator + outputFile;
-      }
+      outputFile = getOutputFilePath(outputFile);
+      inputParameters.setOutputFilePath(outputFile);
       ResultWriter outputWriter = !outputFile.equals("")
         ? RecordFactory.getResultWriter(outputFormat, outputFile)
         : RecordFactory.getResultWriter(outputFormat);
@@ -151,6 +129,8 @@ public class MqafController {
       logger.info(String.format("Assessment completed successfully with %s records. ", counter));
       outputWriter.close();
 
+      postProcess(inputParameters);
+
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.set("Content-Type", MediaType.APPLICATION_JSON.toString());
 
@@ -175,76 +155,48 @@ public class MqafController {
     }
   }
 
-  private String getInputFile(String inputFile) {
-    String inputDir = mqafConfiguration.getInputDir();
-    if (StringUtils.isNoneBlank(inputDir) && (new File(inputDir)).exists()) {
-      String separator = (inputDir.endsWith("/")) ? "" : "/";
-      inputFile = inputDir + separator + inputFile;
-    }
-    return inputFile;
-  }
-
-  private static MeasurementConfiguration getMeasurementConfiguration(String measurementsContent,
-                                                                      String measurementsFile,
-                                                                      String measurementsFormat)
-      throws FileNotFoundException {
-    MeasurementConfiguration measurementConfig;
-    if (measurementsFile != null && !measurementsFile.isEmpty()) {
-      logger.info("Read MeasurementConfiguration from file: " + measurementsFile);
-      logger.info("measurementsFormat: " + measurementsFormat);
-      switch (measurementsFormat) {
-        case YAML: measurementConfig = ConfigurationReader.readMeasurementJson(measurementsFile); break;
-        case JSON:
-        default:   measurementConfig = ConfigurationReader.readMeasurementYaml(measurementsFile);
-      }
-    } else {
-      switch (measurementsFormat) {
-        case YAML: measurementConfig = loadYaml(measurementsContent, MeasurementConfiguration.class); break;
-        case JSON:
-        default:   measurementConfig = loadJson(measurementsContent, MeasurementConfiguration.class);
-      }
-    }
-    logger.info("MeasurementConfiguration done");
-    return measurementConfig;
-  }
-
-  private static Schema getSchema(String schemaContent, String schemaFile, String schemaFormat) throws FileNotFoundException {
-    Schema schema = null;
-    try {
-      if (schemaFile != null && !schemaFile.isEmpty()) {
-        logger.info("Read Schema from file: " + schemaFile);
-        logger.info("schemaFormat: " + schemaFormat);
-        switch (schemaFormat) {
-          case YAML: schema = ConfigurationReader.readSchemaYaml(schemaFile).asSchema(); break;
-          case JSON:
-          default:   schema = ConfigurationReader.readSchemaYaml(schemaFile).asSchema();
-        }
-      } else {
-        switch (schemaFormat) {
-          case YAML: schema = loadYaml(schemaContent, SchemaConfiguration.class).asSchema(); break;
-          case JSON:
-          default:   schema = loadJson(schemaContent, SchemaConfiguration.class).asSchema();
+  private void postProcess(InputParameters inputParameters) throws IOException {
+    logger.info("postProcess()");
+    int id = 0;
+    for (DataElement dataElement : inputParameters.getSchema().getPaths()) {
+      List<Rule> rules = dataElement.getRules();
+      if (rules != null) {
+        for (Rule rule : rules) {
+          logger.info(rule.getId());
         }
       }
-    } catch (Exception e) {
-      logger.severe(e.getMessage());
     }
-    logger.info("schema: " + schema);
-    return schema;
-  }
-
-  private static <T> T loadJson(String content, Class<T> clazz) {
-    var objectMapper = new ObjectMapper();
+    List<String> commands = List.of(
+      String.format("php /opt/metadata-qa/scripts/csv2sql.php %s %s > %s/%s",
+        inputParameters.getOutputFilePath(), "output", inputParameters.getOutputDir(), "output.sql"),
+      "/opt/metadata-qa/scripts/hello-world.sh > /opt/metadata-qa/output/hello-world.txt"
+    );
+    Process process = null;
     try {
-      return objectMapper.readValue(content, clazz);
-    } catch (JsonProcessingException e) {
+      for (String command : commands) {
+        process = Runtime.getRuntime().exec(command);
+        System.err.println(process);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
       throw new RuntimeException(e);
     }
   }
 
-  private static <T> T loadYaml(String content, Class<T> clazz) {
-    var yaml = new Yaml(new Constructor(clazz, new LoaderOptions()));
-    InputStream inputStream = IOUtils.toInputStream(content);
-    return yaml.load(inputStream);
+  private String getInputFilePath(String inputFile) {
+    return getPath(mqafConfiguration.getInputDir(), inputFile);
   }
+
+  private String getOutputFilePath(String outputFile) {
+    return getPath(mqafConfiguration.getOutputDir(), outputFile);
+  }
+
+  private static String getPath(String dir, String file) {
+    if (StringUtils.isNoneBlank(dir) && (new File(dir)).exists()) {
+      String separator = (dir.endsWith("/")) ? "" : "/";
+      file = dir + separator + file;
+    }
+    return file;
+  }
+
 }
