@@ -1,13 +1,20 @@
 package de.gwdg.metadataqa.ws.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.gwdg.metadataqa.api.configuration.ConfigurationReader;
 import de.gwdg.metadataqa.api.configuration.MeasurementConfiguration;
 import de.gwdg.metadataqa.api.configuration.SchemaConfiguration;
 import de.gwdg.metadataqa.api.schema.Schema;
 import de.gwdg.metadataqa.ws.MqafConfiguration;
 import de.gwdg.metadataqa.ws.Utils;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static de.gwdg.metadataqa.api.cli.App.JSON;
@@ -21,6 +28,8 @@ public class InputParameters {
   private Schema schema;
   private MeasurementConfiguration measurementConfig;
   private String outputFilePath;
+  private String schemaFile;
+  private String measurementFile;
 
   public InputParameters(MqafConfiguration mqafConfiguration) {
     this.mqafConfiguration = mqafConfiguration;
@@ -28,6 +37,10 @@ public class InputParameters {
 
   public String getOutputDir() {
     return mqafConfiguration.getOutputDir();
+  }
+
+  public String getInputDir() {
+    return mqafConfiguration.getInputDir();
   }
 
   public Schema getSchema() {
@@ -49,6 +62,7 @@ public class InputParameters {
   public Schema createSchema(String schemaContent, String schemaFile, String schemaFormat) throws FileNotFoundException {
     try {
       if (schemaFile != null && !schemaFile.isEmpty()) {
+        this.schemaFile = schemaFile;
         switch (schemaFormat) {
           case YAML: schema = ConfigurationReader.readSchemaYaml(schemaFile).asSchema(); break;
           case JSON:
@@ -56,9 +70,17 @@ public class InputParameters {
         }
       } else {
         switch (schemaFormat) {
-          case YAML: schema = Utils.loadYaml(schemaContent, SchemaConfiguration.class).asSchema(); break;
+          case YAML:
+            schema = Utils.loadYaml(schemaContent, SchemaConfiguration.class).asSchema();
+            this.schemaFile = "schema.yaml";
+            saveToFile(schemaContent, this.schemaFile);
+            break;
           case JSON:
-          default:   schema = Utils.loadJson(schemaContent, SchemaConfiguration.class).asSchema();
+          default:
+            schema = Utils.loadJson(schemaContent, SchemaConfiguration.class).asSchema();
+            this.schemaFile = "schema.json";
+            saveToFile(schemaContent, this.schemaFile);
+            break;
         }
       }
     } catch (Exception e) {
@@ -67,13 +89,25 @@ public class InputParameters {
     return schema;
   }
 
+  /**
+   * Save content into a file in the input directory
+   * @param content
+   * @param schemaFile
+   * @throws IOException
+   */
+  private void saveToFile(String content, String schemaFile) throws IOException {
+    File exportSchemaFile = new File(mqafConfiguration.getInputDir() + "/" + schemaFile);
+    FileUtils.writeStringToFile(exportSchemaFile, content, Charset.forName("UTF-8"));
+  }
+
   public MeasurementConfiguration createMeasurementConfiguration(String measurementsContent,
                                                                       String measurementsFile,
                                                                       String measurementsFormat)
-    throws FileNotFoundException {
+    throws IOException, FileNotFoundException {
     if (measurementsFile != null && !measurementsFile.isEmpty()) {
       logger.info("Read MeasurementConfiguration from file: " + measurementsFile);
       logger.info("measurementsFormat: " + measurementsFormat);
+      this.measurementFile = measurementsFile;
       switch (measurementsFormat) {
         case YAML: measurementConfig = ConfigurationReader.readMeasurementJson(measurementsFile); break;
         case JSON:
@@ -81,9 +115,17 @@ public class InputParameters {
       }
     } else {
       switch (measurementsFormat) {
-        case YAML: measurementConfig = Utils.loadYaml(measurementsContent, MeasurementConfiguration.class); break;
+        case YAML:
+          measurementConfig = Utils.loadYaml(measurementsContent, MeasurementConfiguration.class);
+          this.measurementFile = "measurement.yaml";
+          saveToFile(measurementsContent, this.measurementFile);
+          break;
         case JSON:
-        default:   measurementConfig = Utils.loadJson(measurementsContent, MeasurementConfiguration.class);
+        default:
+          measurementConfig = Utils.loadJson(measurementsContent, MeasurementConfiguration.class);
+          this.measurementFile = "measurement.json";
+          saveToFile(measurementsContent, this.measurementFile);
+          break;
       }
     }
     return measurementConfig;
@@ -91,5 +133,22 @@ public class InputParameters {
 
   public void setOutputFilePath(String outputFilePath) {
     this.outputFilePath = outputFilePath;
+  }
+
+  public void saveInputParameters() {
+    Map<String, String> inputParameters = Map.of(
+      "measurements", this.measurementFile,
+      "schema", this.schemaFile
+    );
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      String json = objectMapper.writeValueAsString(inputParameters);
+      saveToFile(json, "input-parameters.json");
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
   }
 }

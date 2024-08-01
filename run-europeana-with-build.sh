@@ -12,7 +12,7 @@ docker rm mqaf-ws
 docker rmi $(docker images pkiraly/mqaf-ws -q)
 
 echo "build image"
-docker-compose -f docker-compose.yml build app
+docker compose -f docker-compose.yml build app
 
 echo "run container"
 if [[ ! -d test-europeana/output ]]; then

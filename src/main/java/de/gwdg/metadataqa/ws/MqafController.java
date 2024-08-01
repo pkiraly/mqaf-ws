@@ -112,6 +112,8 @@ public class MqafController {
       // write to std out if no file was given
       outputFile = getOutputFilePath(outputFile);
       inputParameters.setOutputFilePath(outputFile);
+      inputParameters.saveInputParameters();
+
       ResultWriter outputWriter = !outputFile.equals("")
         ? RecordFactory.getResultWriter(outputFormat, outputFile)
         : RecordFactory.getResultWriter(outputFormat);
@@ -171,7 +173,8 @@ public class MqafController {
       String.format("php /opt/metadata-qa/scripts/csv2sql.php %s %s > %s/%s",
         inputParameters.getOutputFilePath(), "output", inputParameters.getOutputDir(), "output.sql"),
       String.format("/opt/metadata-qa/scripts/hello-world.sh > %s/hello-world.txt", inputParameters.getOutputDir()),
-      String.format("chmod 644 -R %s", inputParameters.getOutputDir())
+      String.format("chmod 644 -R %s", inputParameters.getOutputDir()),
+      String.format("chmod 644 -R %s", inputParameters.getInputDir())
     );
     Process process = null;
     try {
