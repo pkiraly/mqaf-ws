@@ -30,6 +30,8 @@ public class InputParameters {
   private String outputFilePath;
   private String schemaFile;
   private String measurementFile;
+  private String measurementsFormat;
+  private String schemaFormat;
 
   public InputParameters(MqafConfiguration mqafConfiguration) {
     this.mqafConfiguration = mqafConfiguration;
@@ -60,6 +62,7 @@ public class InputParameters {
   }
 
   public Schema createSchema(String schemaContent, String schemaFile, String schemaFormat) throws FileNotFoundException {
+    this.schemaFormat = schemaFormat;
     try {
       if (schemaFile != null && !schemaFile.isEmpty()) {
         this.schemaFile = schemaFile;
@@ -104,6 +107,7 @@ public class InputParameters {
                                                                       String measurementsFile,
                                                                       String measurementsFormat)
     throws IOException, FileNotFoundException {
+    this.measurementsFormat = measurementsFormat;
     if (measurementsFile != null && !measurementsFile.isEmpty()) {
       logger.info("Read MeasurementConfiguration from file: " + measurementsFile);
       logger.info("measurementsFormat: " + measurementsFormat);
@@ -137,8 +141,10 @@ public class InputParameters {
 
   public void saveInputParameters() {
     Map<String, String> inputParameters = Map.of(
-      "measurements", this.measurementFile,
-      "schema", this.schemaFile
+      "measurements", this.measurementFile.replace(getInputDir(), ""),
+      "measurementsFormat", this.measurementsFormat,
+      "schema", this.schemaFile.replace(getInputDir(), ""),
+      "schemaFormat", this.schemaFormat
     );
     ObjectMapper objectMapper = new ObjectMapper();
     try {
