@@ -176,8 +176,11 @@ public class MqafController {
       String.format("/opt/metadata-qa/scripts/postprocess.sh"
         + " --outputFilePath %s"
         + " --outputDir %s"
-        + " --inputDir %s",
-        inputParameters.getOutputFilePath(), inputParameters.getOutputDir(), inputParameters.getInputDir())
+        + " --inputDir %s"
+        + " --ruleColumns %s",
+        inputParameters.getOutputFilePath(), inputParameters.getOutputDir(), inputParameters.getInputDir(),
+        StringUtils.join(inputParameters.getRuleColumns(), ",")
+      )
     );
 
     Process process = null;
@@ -218,6 +221,7 @@ public class MqafController {
 
   private static void createDatabaseDefinition(InputParameters inputParameters) {
     RuleCheckingOutputType outPutType = inputParameters.getMeasurementConfig().getRuleCheckingOutputType();
+    List<String> ruleColumns = new ArrayList<>();
     logger.info("outPutType: " + outPutType.toString());
     Map<String, String> mapping = new LinkedHashMap<>();
     // List<String> fields = new ArrayList<>();
@@ -231,17 +235,23 @@ public class MqafController {
         for (Rule rule : rules) {
           if (outPutType.equals(RuleCheckingOutputType.STATUS)) {
             mapping.put(rule.getId() + ":status", "BOOLEAN");
+            ruleColumns.add(rule.getId().toLowerCase() + "_status");
           } else if (outPutType.equals(RuleCheckingOutputType.SCORE)) {
             mapping.put(rule.getId() + ":score", "INTEGER");
+            ruleColumns.add(rule.getId().toLowerCase() + "_score");
           } else {
             mapping.put(rule.getId() + ":status", "BOOLEAN");
+            ruleColumns.add(rule.getId().toLowerCase() + "_status");
             mapping.put(rule.getId() + ":score", "INTEGER");
+            ruleColumns.add(rule.getId().toLowerCase() + "_score");
           }
           logger.info(rule.getId());
         }
       }
     }
     mapping.put("rulecatalog_score", "INTEGER");
+    ruleColumns.add("rulecatalog_score");
+    inputParameters.setRuleColumns(ruleColumns);
 
     try (PrintWriter out = new PrintWriter(inputParameters.getOutputDir() + "/output-definition.sql")) {
       out.println(createDatabaseDefinitionSQL(mapping));
@@ -253,7 +263,7 @@ public class MqafController {
 
   private static String createDatabaseDefinitionSQL(Map<String, String> mapping) {
     List<String> lines = new ArrayList<>();
-    lines.add("CREATE TABLE %s (");
+    lines.add(String.format("CREATE TABLE %s (", "output"));
     for (Map.Entry<String, String> entry : mapping.entrySet())
       lines.add(String.format("  \"%s\" %s,", entry.getKey(), entry.getValue()));
     lines.add(");");

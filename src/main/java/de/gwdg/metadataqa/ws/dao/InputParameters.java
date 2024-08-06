@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ public class InputParameters {
   private String measurementFile;
   private String measurementsFormat;
   private String schemaFormat;
+  private List<String> ruleColumns;
 
   public InputParameters(MqafConfiguration mqafConfiguration) {
     this.mqafConfiguration = mqafConfiguration;
@@ -59,6 +61,14 @@ public class InputParameters {
 
   public MeasurementConfiguration getMeasurementConfig() {
     return measurementConfig;
+  }
+
+  public List<String> getRuleColumns() {
+    return ruleColumns;
+  }
+
+  public void setRuleColumns(List<String> ruleColumns) {
+    this.ruleColumns = ruleColumns;
   }
 
   public Schema createSchema(String schemaContent, String schemaFile, String schemaFormat) throws FileNotFoundException {
