@@ -98,8 +98,12 @@ and run the predefined REST API call.
 
 To run Europeana validation with pulling image from dockerhub:
 ```
-./run-europeana-with-pull.sh
+./run-europeana-with-pull.sh [options]
 ```
+
+options:
+* `-r <arg>`|`--repository <arg>`  the Docker repository where the image should be pulled from ('dockerhub' or 'github')
+* `-h`|`--help` display help
 
 To run Europeana validation with building docker image locally:
 ```

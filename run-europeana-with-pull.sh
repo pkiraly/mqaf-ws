@@ -12,7 +12,7 @@ show_usage() { # display help message
 run Europeana validation with pulling image from a docker repository
 
 usage:
- ${ME} [options] <files>
+ ${ME} [options]
 
 options:
  -r, --repository <arg>      the Docker repository where the image should be pulled from ('dockerhub' or 'github')
