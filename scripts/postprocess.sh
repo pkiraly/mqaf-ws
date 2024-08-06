@@ -15,7 +15,8 @@ usage:
 
 options:
  -f, --outputFilePath <arg>  output file path
- -d, --outputDir <arg>  output directory
+ -d, --outputDir <arg>       output directory
+ -i, --inputDir <arg>        input directory
  -h, --help                  display help
 EOF
   exit 1
@@ -46,7 +47,9 @@ while true ; do
   esac
 done
 
+echo realpath(.)
 php csv2sql.php ${OUTPUT_FILE_PATH} 'output' > ${OUTPUT_DIR}/output.sql
 hello-world.sh > ${OUTPUT_DIR}/hello-world.txt
-chmod 644 -R ${OUTPUT_DIR}
-chmod 644 -R ${INPUT_DIR}
+chmod 755 -R ${OUTPUT_DIR}
+chown www-data -R ${OUTPUT_DIR}
+chmod 755 -R ${INPUT_DIR}

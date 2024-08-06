@@ -18,8 +18,9 @@ echo "run container"
 if [[ ! -d test-europeana/output ]]; then
   mkdir test-europeana/output
 fi
+
 docker run -d -p 8080:8080 \
-  -v ./test-europeana:/opt/metadata-qa/input \
+  -v ./test-europeana/input:/opt/metadata-qa/input \
   -v ./test-europeana/output:/opt/metadata-qa/output \
   --name mqaf-ws pkiraly/mqaf-ws
 
@@ -27,6 +28,7 @@ sleep 3
 
 echo "call the API"
 curl -X POST \
+     -w '\n' \
      -F "schemaFile=schema.yaml" \
      -F 'schemaFormat=yaml' \
      -F "measurementsFile=measurements.json" \

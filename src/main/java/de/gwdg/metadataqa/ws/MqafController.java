@@ -169,13 +169,15 @@ public class MqafController {
   private void postProcess(InputParameters inputParameters) throws IOException {
     logger.info("postProcess()");
     createDatabaseDefinition(inputParameters);
+    // sudo -u www-data
     List<String> commands = List.of(
-      String.format("php /opt/metadata-qa/scripts/csv2sql.php %s %s > %s/%s",
-        inputParameters.getOutputFilePath(), "output", inputParameters.getOutputDir(), "output.sql"),
-      String.format("/opt/metadata-qa/scripts/hello-world.sh > %s/hello-world.txt", inputParameters.getOutputDir()),
-      String.format("chmod 644 -R %s", inputParameters.getOutputDir()),
-      String.format("chmod 644 -R %s", inputParameters.getInputDir())
+      String.format("/opt/metadata-qa/scripts/postprocess.sh "
+        + "--outputFilePath %s"
+        + "--outputDir %s"
+        + "--inputDir %s",
+        inputParameters.getOutputFilePath(), inputParameters.getOutputDir(), inputParameters.getInputDir())
     );
+
     Process process = null;
     try {
       for (String command : commands) {
@@ -192,6 +194,7 @@ public class MqafController {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+    logger.info("/postProcess()");
   }
 
   private static void createDatabaseDefinition(InputParameters inputParameters) {

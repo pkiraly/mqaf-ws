@@ -7,7 +7,10 @@ define('LN', "\n");
 if ($argc < 3) {
   die(sprintf('usage: php %s <csvFile> <tableName>', $argv[0]) . LN);
 }
-ini_set('error_log', realpath(dirname(__FILE__) . '/../logs') . '/php.log');
+# echo dirname(__FILE__), "\n";
+# echo realpath(dirname(__FILE__) . '/../logs') . '/php.log', "\n";
+# ini_set('error_log', realpath(dirname(__FILE__) . '/../logs') . '/php.log');
+ini_set('error_log', realpath(dirname(__FILE__)) . '/php.log');
 
 $in = $argv[1];
 $table = $argv[2];
@@ -38,6 +41,9 @@ function processCsv($csvFile, $table, $out) {
         if (count($columns) != count($values)) {
           error_log(sprintf('error in %s line #%d: %d vs %d', $csvFile, $lineNumber, count($columns), count($values)));
         } else {
+          array_walk($values, function (&$item) {
+            $item = str_replace('"', '\\"', $item);
+          });
           $sql = sprintf("INSERT INTO %s (`%s`) VALUES (%s);\n",
             $table,
             join('`,`', $columns),
