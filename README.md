@@ -53,15 +53,28 @@ curl -X POST \
      http://localhost:8080/mqaf-ws/validate
 ```
 
+If it was successfull, the API returns a simple JSON report:
+
+```JSON
+{result: 1}
+```
+
 ## Docker
 
-The application is available as a docker image `pkiraly/mqaf-ws:latest`. It has two volumes:
+The application is available as a docker image `pkiraly/mqaf-ws:latest`. It defines the following volumes:
 - `INPUT` (default: `./input`) that points to the container's `/opt/metadata-qa/input`. This is the location of the 
    input files, the user can set relative path in `inputFile`, `schemaFile` and `measurements``properties.
 - `OUTPUT` (default: `./output`) that points to the container's `/opt/metadata-qa/output`. This is the directory 
    where the API puts the output file.
 
-The application runs an Apache Tomcat server which is available internally on oprt 8080. To launch the application you 
+The continuous integration process also creates and stores an alternative Docker image at Github for every commited 
+changes of the source code. It can be access as
+
+```
+docker pull ghcr.io/pkiraly/mqaf-ws:main
+```
+
+The application runs an Apache Tomcat server which is available internally on port 8080. To launch the application you 
 can execute the following command:
 
 ```bash
@@ -75,4 +88,20 @@ or if you use the reporitory's `docker-compose.yml` file:
 
 ```bash
 docker compose up
+```
+
+### Test run
+
+In the `test-europeana` directory there are files that one can use for testing reasons. We provided two scripts that 
+utilize these files. They remove previous Docker containers and images, fetch or build the Docker image, start service 
+and run the predefined REST API call.
+
+To run Europeana validation with pulling image from dockerhub:
+```
+./run-europeana-with-pull.sh
+```
+
+To run Europeana validation with building docker image locally:
+```
+./run-europeana-with-build.sh
 ```
