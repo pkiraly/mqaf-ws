@@ -110,3 +110,10 @@ To run Europeana validation with building docker image locally:
 ```
 ./run-europeana-with-build.sh
 ```
+
+In the `test-aqinda` directory there are files related to the Aqinda project. To run Aqinda assessment execute the 
+following:
+
+```
+./run-aqinda-with-build.sh
+```
