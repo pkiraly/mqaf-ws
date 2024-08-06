@@ -47,9 +47,14 @@ while true ; do
   esac
 done
 
-echo realpath(.)
+DIR=$(dirname $0)
+cd ${DIR}
+./hello-world.sh > ${OUTPUT_DIR}/hello-world.txt
 php csv2sql.php ${OUTPUT_FILE_PATH} 'output' > ${OUTPUT_DIR}/output.sql
-hello-world.sh > ${OUTPUT_DIR}/hello-world.txt
+Rscript analyse-output.R --csv ${OUTPUT_FILE_PATH} \
+                         --outputDir ${OUTPUT_DIR} \
+                         --fields missinglangtag,rulecatalog_score \
+                         -q
 chmod 755 -R ${OUTPUT_DIR}
 chown www-data -R ${OUTPUT_DIR}
 chmod 755 -R ${INPUT_DIR}

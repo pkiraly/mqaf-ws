@@ -27,19 +27,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
-import static java.awt.SystemColor.text;
 
 @RestController
 public class MqafController {
@@ -148,7 +150,7 @@ public class MqafController {
       return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_JSON)
         .headers(responseHeaders)
-        .body("{result: 1}");
+        .body("{\"result\": 1}");
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -171,22 +173,39 @@ public class MqafController {
     createDatabaseDefinition(inputParameters);
     // sudo -u www-data
     List<String> commands = List.of(
-      String.format("/opt/metadata-qa/scripts/postprocess.sh "
-        + "--outputFilePath %s"
-        + "--outputDir %s"
-        + "--inputDir %s",
+      String.format("/opt/metadata-qa/scripts/postprocess.sh"
+        + " --outputFilePath %s"
+        + " --outputDir %s"
+        + " --inputDir %s",
         inputParameters.getOutputFilePath(), inputParameters.getOutputDir(), inputParameters.getInputDir())
     );
 
     Process process = null;
     try {
       for (String command : commands) {
+        logger.info(command);
         process = Runtime.getRuntime().exec(command);
         TimeUnit.SECONDS.sleep(1);
-        if (process.exitValue() != 0) {
-          logger.info(command);
-          System.err.println(process.getErrorStream().transferTo(System.out));
+        StringBuilder textBuilder = new StringBuilder();
+        try (Reader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+          int c = 0;
+          while ((c = reader.read()) != -1) {
+            textBuilder.append((char) c);
+          }
         }
+        logger.info(textBuilder.toString());
+        logger.info("exitValue: " + process.exitValue());
+        // if (process.exitValue() != 0) {
+          InputStream error = process.getErrorStream();
+          textBuilder = new StringBuilder();
+          try (Reader reader = new BufferedReader(new InputStreamReader(error, StandardCharsets.UTF_8))) {
+            int c = 0;
+            while ((c = reader.read()) != -1) {
+              textBuilder.append((char) c);
+            }
+          }
+          logger.warning(textBuilder.toString());
+        // }
       }
     } catch (IOException e) {
       e.printStackTrace();

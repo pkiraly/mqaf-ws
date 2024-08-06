@@ -25,6 +25,9 @@ RUN apt-get update \
       wget \
       openssl \
       git \
+      sqlite3 \
+      less \
+      locales \
       # Install R
       r-base \
       # Install R packages from ppa:marutter
@@ -33,12 +36,10 @@ RUN apt-get update \
       r-cran-gridextra \
       r-cran-rsqlite \
       r-cran-httr \
-      sqlite3 \
-      less \
+      r-cran-argparse \
       # for Apache Solr
       lsof \
       # php \
-      locales \
       php \
       php-sqlite3 \
       php-curl \
