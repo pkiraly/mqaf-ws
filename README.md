@@ -102,7 +102,8 @@ To run Europeana validation with pulling image from dockerhub:
 ```
 
 options:
-* `-r <arg>`|`--repository <arg>`  the Docker repository where the image should be pulled from ('dockerhub' or 'github')
+* `-r <arg>`|`--repository <arg>`  the Docker repository where the image should be pulled from 
+  (either `dockerhub` (a more stable version) or `github` (the current developer version))
 * `-h`|`--help` display help
 
 To run Europeana validation with building docker image locally:
