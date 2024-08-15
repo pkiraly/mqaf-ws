@@ -52,8 +52,19 @@ done
 
 DIR=$(dirname $0)
 cd ${DIR}
+echo "Hello world!"
 ./hello-world.sh > ${OUTPUT_DIR}/hello-world.txt
-php csv2sql.php ${OUTPUT_FILE_PATH} 'output' > ${OUTPUT_DIR}/output.sql
+
+echo "CSV -> SQL"
+php csv2sql.php --csvFile ${OUTPUT_FILE_PATH} --tableName 'output' --outputDir ${OUTPUT_DIR}
+
+echo "Import SQL definition"
+mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output-definition.sql
+
+echo "Import SQL"
+mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output.sql
+
+echo "analyse with R"
 Rscript analyse-output.R --csv ${OUTPUT_FILE_PATH} \
                          --outputDir ${OUTPUT_DIR} \
                          --fields ${RULE_COLUMNS} \

@@ -173,14 +173,25 @@ public class MqafController {
     createDatabaseDefinition(inputParameters);
     // sudo -u www-data
     List<String> commands = List.of(
+      String.format("php /opt/metadata-qa/scripts/csv2sql.php --csvFile %s --tableName 'output' --outputDir %s",
+        inputParameters.getOutputFilePath(), inputParameters.getOutputDir()),
+      String.format("mysql -h database -u mqaf -pmqaf mqaf < %s/output-definition.sql",
+        inputParameters.getOutputDir()),
+      String.format("mysql -h database -u mqaf -pmqaf mqaf < %s/output.sql",
+        inputParameters.getOutputDir()),
+      String.format("Rscript /opt/metadata-qa/scripts/analyse-output.R --csv %s --outputDir %s --fields %s -v",
+        inputParameters.getOutputFilePath(), inputParameters.getOutputDir(),
+        StringUtils.join(inputParameters.getRuleColumns(), ","))
+      /*
       String.format("/opt/metadata-qa/scripts/postprocess.sh"
-        + " --outputFilePath %s"
-        + " --outputDir %s"
-        + " --inputDir %s"
-        + " --ruleColumns %s",
+          + " --outputFilePath %s"
+          + " --outputDir %s"
+          + " --inputDir %s"
+          + " --ruleColumns %s",
         inputParameters.getOutputFilePath(), inputParameters.getOutputDir(), inputParameters.getInputDir(),
         StringUtils.join(inputParameters.getRuleColumns(), ",")
       )
+       */
     );
 
     Process process = null;
@@ -207,7 +218,8 @@ public class MqafController {
               textBuilder.append((char) c);
             }
           }
-          logger.warning(textBuilder.toString());
+          if (!textBuilder.isEmpty())
+            logger.warning(textBuilder.toString());
         // }
       }
     } catch (IOException e) {
@@ -234,15 +246,15 @@ public class MqafController {
       if (rules != null) {
         for (Rule rule : rules) {
           if (outPutType.equals(RuleCheckingOutputType.STATUS)) {
-            mapping.put(rule.getId() + ":status", "BOOLEAN");
+            mapping.put(rule.getId() + "_status", "BOOLEAN");
             ruleColumns.add(rule.getId().toLowerCase() + "_status");
           } else if (outPutType.equals(RuleCheckingOutputType.SCORE)) {
-            mapping.put(rule.getId() + ":score", "INTEGER");
+            mapping.put(rule.getId() + "_score", "INTEGER");
             ruleColumns.add(rule.getId().toLowerCase() + "_score");
           } else {
-            mapping.put(rule.getId() + ":status", "BOOLEAN");
+            mapping.put(rule.getId() + "_status", "BOOLEAN");
             ruleColumns.add(rule.getId().toLowerCase() + "_status");
-            mapping.put(rule.getId() + ":score", "INTEGER");
+            mapping.put(rule.getId() + "_score", "INTEGER");
             ruleColumns.add(rule.getId().toLowerCase() + "_score");
           }
           logger.info(rule.getId());
@@ -264,8 +276,10 @@ public class MqafController {
   private static String createDatabaseDefinitionSQL(Map<String, String> mapping) {
     List<String> lines = new ArrayList<>();
     lines.add(String.format("CREATE TABLE %s (", "output"));
+    List<String> fields = new ArrayList<>();
     for (Map.Entry<String, String> entry : mapping.entrySet())
-      lines.add(String.format("  \"%s\" %s,", entry.getKey(), entry.getValue()));
+      fields.add(String.format("  `%s` %s", entry.getKey(), entry.getValue()));
+    lines.add(StringUtils.join(fields, ",\n"));
     lines.add(");");
     return StringUtils.join(lines, "\n");
   }

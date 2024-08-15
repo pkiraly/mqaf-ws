@@ -1,0 +1,18 @@
+{
+  "fieldExtractorEnabled": true,
+  "fieldExistenceMeasurementEnabled": false,
+  "fieldCardinalityMeasurementEnabled": false,
+  "completenessMeasurementEnabled": false,
+  "tfIdfMeasurementEnabled": false,
+  "problemCatalogMeasurementEnabled": false,
+  "ruleCatalogMeasurementEnabled": true,
+  "languageMeasurementEnabled": false,
+  "multilingualSaturationMeasurementEnabled": false,
+  "collectTfIdfTerms": false,
+  "uniquenessMeasurementEnabled": false,
+  "completenessCollectFields": false,
+  "saturationExtendedResult": false,
+  "checkSkippableCollections": false,
+  "onlyIdInHeader": true,
+  "ruleCheckingOutputType": "BOTH"
+}

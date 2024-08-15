@@ -4,19 +4,29 @@
  */
 define('LN', "\n");
 
-if ($argc < 3) {
-  die(sprintf('usage: php %s <csvFile> <tableName>', $argv[0]) . LN);
-}
+$options  = [
+  "c:" => "csvFile:",
+  "t:" => "tableName:",
+  "f:" => "fieldList:",
+  "d:" => "outputDir:",
+];
+$parameters = getopt(implode('', array_keys($options)), array_values($options));
+print_r($parameters);
+
+# if ($argc < 3) {
+#   die(sprintf('usage: php %s <csvFile> <tableName>', $argv[0]) . LN);
+# }
+
 # echo dirname(__FILE__), "\n";
 # echo realpath(dirname(__FILE__) . '/../logs') . '/php.log', "\n";
 # ini_set('error_log', realpath(dirname(__FILE__) . '/../logs') . '/php.log');
 ini_set('error_log', realpath(dirname(__FILE__)) . '/php.log');
 
-$in = $argv[1];
-$table = $argv[2];
-$string_fields = isset($argv[3]) && !empty($argv[3]) ? explode(',', $argv[3]) : [];
+$in = $parameters['csvFile']; // $argv[1];
+$table = $parameters['tableName']; // $argv[2];
+$string_fields = $parameters['fieldList'] ?? []; // isset($argv[3]) && !empty($argv[3]) ? explode(',', $argv[3]) : [];
 
-$out = preg_replace('/\.csv$/', '.sql', $in);
+$out = $parameters['outputDir'] . '/' . preg_replace('/\.csv$/', '.sql', $in);
 error_log(sprintf('[%s:%d] creating %s', basename(__FILE__), __LINE__, $out));
 if (file_exists($out))
   unlink($out);

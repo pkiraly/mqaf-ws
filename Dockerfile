@@ -28,6 +28,8 @@ RUN apt-get update \
       sqlite3 \
       less \
       locales \
+      # mysql \
+      default-mysql-client \
       # Install R
       r-base \
       # Install R packages from ppa:marutter

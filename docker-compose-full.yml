@@ -1,0 +1,54 @@
+services:
+  database:
+    image: mysql:latest
+    ports:
+      - "3307:3306"
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./mysql/init.sql:/data/application/init.sql
+      - ./mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: mqaf
+      MYSQL_DATABASE: mqaf
+      MYSQL_USER: mqaf
+      MYSQL_PASSWORD: mqaf
+    container_name: ${DB_CONTAINER:-mqaf-db}
+    networks:
+      - mqaf
+
+  ws:
+    image: ${WS_IMAGE:-ghcr.io/pkiraly/mqaf-ws:main} # the name of the image
+    # image: ${IMAGE:-pkiraly/mqaf-ws:latest}
+    volumes:
+      - ./${INPUT:-aqinda-test/input}:/opt/metadata-qa/input
+      - ./${OUTPUT:-aqinda-test/output}:/opt/metadata-qa/output
+    ports:
+      - ${WS_WEBPORT:-8080}:8080             # Tomcat address
+    container_name: ${WS_CONTAINER:-mqaf-ws}
+    depends_on:
+      - database
+    networks:
+      - mqaf
+
+  report:
+    image: ${REPORT_IMAGE:-ghcr.io/pkiraly/mqaf-report:main}
+    ports:
+      - ${REPORT_WEBPORT:-90}:80
+      - ${SOLRPORT:-8983}:8983
+    volumes:
+      - ${CONFIG:-./aqinda-test/config}:/var/www/html/config
+      - ${INPUT:-./aqinda-test/input}:/var/www/html/metadata-qa
+      - ${OUTPUT:-./aqinda-test/output}:/var/www/html/metadata-qa
+    container_name: ${REPORT_CONTAINER:-mqaf-report}
+    depends_on:
+      - database
+    networks:
+      - mqaf
+
+networks:
+  mqaf:
+
+volumes:
+  mqaf-data:
+    external: true
