@@ -38,8 +38,8 @@ services:
       - ${SOLRPORT:-8983}:8983
     volumes:
       - ${CONFIG:-./aqinda-test/config}:/var/www/html/config
-      - ${INPUT:-./aqinda-test/input}:/var/www/html/metadata-qa
-      - ${OUTPUT:-./aqinda-test/output}:/var/www/html/metadata-qa
+      - ${INPUT:-./aqinda-test/input}:/opt/metadata-qa/input
+      - ${OUTPUT:-./aqinda-test/output}:/opt/metadata-qa/output
     container_name: ${REPORT_CONTAINER:-mqaf-report}
     depends_on:
       - database

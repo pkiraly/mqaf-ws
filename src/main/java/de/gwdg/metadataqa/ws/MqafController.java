@@ -127,6 +127,7 @@ public class MqafController {
 
       long counter = 0;
       List<String> header = calculator.getHeader();
+      logger.info(StringUtils.join(header, " -- "));
       outputWriter.writeHeader(header);
 
       while (inputReader.hasNext()) {

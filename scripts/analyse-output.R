@@ -38,14 +38,56 @@ fields <- unlist(strsplit(args$fields, split = ","))
 df <- read_csv(args$csv)
 total <- nrow(df)
 
+print('make status')
+status <- df %>% select(id, ends_with('_status'))
+score <- df %>% select(id, ends_with('_score'))
+
 make_stat <- function(field) {
-  # print(paste("field: ", field))
-  freq <- df %>% select(all_of(field)) %>% table() %>% as_tibble()
+  print(paste("field: ", field))
+  freq <- score %>% select(all_of(field)) %>% table() %>% as_tibble()
   names(freq) <- c('value', 'count')
   freq$percent <- freq$count * 100 / total
   write_csv(freq, paste0(args$outputDir, "/", field, ".csv"))
 }
 
-lapply(fields, make_stat)
+print('create field list')
+all_fields    <- names(df)
+score_fields  <- all_fields[grep('_score$', all_fields)]
+score_fields
+status_fields <- all_fields[grep('_status$', all_fields)]
+status_fields
 
+print('calculate score')
+lapply(score_fields, make_stat)
+
+print('calculate status')
+df_stat <- tibble(
+  'id' = character(),
+  '0' = numeric(),
+  '1' = numeric(),
+  'NA' = numeric()
+)
+keys <- names(df_stat)
+for (row in 1:length(status_fields)) {
+  column <- status_fields[row]
+  df_stat[row, 1] <- column
+
+  values <- status %>% select(all_of(column))
+  t <- table(values, useNA = "always")
+  names <- names(t)
+  names[is.na(names)] <- 'NA'
+  values <- as.numeric(t)
+  for (i in 2:4) {
+    k <- keys[i]
+    if (sum(names == k) == 0) {
+      v <- 0
+    } else {
+      v <- values[names == k]
+    }
+    df_stat[row, i] <- v
+  }
+}
+df_stat
+
+write_csv(df_stat, paste0(args$outputDir, '/shacl4bib-stat.csv'))
 cat("\n")
