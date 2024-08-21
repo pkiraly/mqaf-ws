@@ -52,11 +52,11 @@ done
 
 DIR=$(dirname $0)
 cd ${DIR}
-echo "Hello world!"
-./hello-world.sh > ${OUTPUT_DIR}/hello-world.txt
+# echo "Hello world!"
+# ./hello-world.sh > ${OUTPUT_DIR}/hello-world.txt
 
-echo "CSV -> SQL"
-php csv2sql.php --csvFile ${OUTPUT_FILE_PATH} --tableName 'output' --outputDir ${OUTPUT_DIR}
+# echo "CSV -> SQL"
+# php csv2sql.php --csvFile ${OUTPUT_FILE_PATH} --tableName 'output' --outputDir ${OUTPUT_DIR}
 
 echo "Import SQL definition"
 mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output-definition.sql
@@ -64,11 +64,11 @@ mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output-definition.sql
 echo "Import SQL"
 mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output.sql
 
-echo "analyse with R"
-Rscript analyse-output.R --csv ${OUTPUT_FILE_PATH} \
-                         --outputDir ${OUTPUT_DIR} \
-                         --fields ${RULE_COLUMNS} \
-                         -v
+# echo "analyse with R"
+# Rscript analyse-output.R --csv ${OUTPUT_FILE_PATH} \
+#                          --outputDir ${OUTPUT_DIR} \
+#                          --fields ${RULE_COLUMNS} \
+#                          -v
 chmod 755 -R ${OUTPUT_DIR}
-chown www-data -R ${OUTPUT_DIR}
-chmod 755 -R ${INPUT_DIR}
+chown www-data:www-data -R ${OUTPUT_DIR}
+# chmod 755 -R ${INPUT_DIR}

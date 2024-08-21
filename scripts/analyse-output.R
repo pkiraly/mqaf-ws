@@ -37,6 +37,9 @@ fields <- unlist(strsplit(args$fields, split = ","))
 
 df <- read_csv(args$csv)
 total <- nrow(df)
+count_df <- tibble(total = total)
+print(count_df)
+write_csv(count_df, paste0(args$outputDir, "/count.csv"))
 
 print('make status')
 status <- df %>% select(id, ends_with('_status'))

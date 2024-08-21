@@ -176,14 +176,15 @@ public class MqafController {
     List<String> commands = List.of(
       String.format("php /opt/metadata-qa/scripts/csv2sql.php --csvFile %s --tableName 'output' --outputDir %s",
         inputParameters.getOutputFilePath(), inputParameters.getOutputDir()),
+      /*
       String.format("mysql -h database -u mqaf -pmqaf mqaf < %s/output-definition.sql",
         inputParameters.getOutputDir()),
       String.format("mysql -h database -u mqaf -pmqaf mqaf < %s/output.sql",
         inputParameters.getOutputDir()),
+       */
       String.format("Rscript /opt/metadata-qa/scripts/analyse-output.R --csv %s --outputDir %s --fields %s -v",
         inputParameters.getOutputFilePath(), inputParameters.getOutputDir(),
-        StringUtils.join(inputParameters.getRuleColumns(), ","))
-      /*
+        StringUtils.join(inputParameters.getRuleColumns(), ",")),
       String.format("/opt/metadata-qa/scripts/postprocess.sh"
           + " --outputFilePath %s"
           + " --outputDir %s"
@@ -192,6 +193,7 @@ public class MqafController {
         inputParameters.getOutputFilePath(), inputParameters.getOutputDir(), inputParameters.getInputDir(),
         StringUtils.join(inputParameters.getRuleColumns(), ",")
       )
+      /*
        */
     );
 
