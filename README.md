@@ -21,10 +21,15 @@ The REST API endpoint is available at https://YOURSERVER/ws/validate
 
 You can use the following parameters (see more details [here](https://github.com/pkiraly/metadata-qa-marc#validating-marc-records)):
 
-* `schemaFile` (optional, String, default: "") The schema configuration file
+* `schemaFile` (optional, String, default: "") The schema configuration file. The file should be available in the container.
+* `schemaContent` (optional, String, default: "") The content of schema configuration file. If you use curl
+  you can use the `-F measurementsContent=@filename` syntax to pass the content.
 * `schemaFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
-* `measurements` (optional, String, default: "") The measurement configuration file that describes what kind of 
-   quality measurements should be run. See [details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file) 
+* `measurementsFile` (optional, String, default: "") The measurement configuration file that describes what kind of 
+   quality measurements should be run. The file should be available in the container.
+   See [details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file) 
+* `measurementsContent` (optional, String, default: "") The content of a schema file. If you use curl 
+   you can use the `-F measurementsContent=@filename` syntax to pass the content.
 * `measurementsFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
 * `inputFile` (optional, String) The input file
 * `inputFormat` (optional, String) The format of input file if it is a JSON (if the file extension is 
@@ -45,9 +50,9 @@ Validate a binary marc file in pure MARC21 schema:
 ```
 DIR=/path/to/files
 curl -X POST \
-     -F 'schemaFile=${DIR}/dc-schema.yaml' \
+     -F 'schemaContent=@${DIR}/dc-schema.yaml' \
      -F 'schemaFormat=yaml' \
-     -F 'measurementsFile=${DIR}/measurement.json' \
+     -F 'measurementsContent=@${DIR}/measurement.json' \
      -F 'measurementsFormat=json' \
      -F 'inputFile=${DIR}/UB_W-rzburg_Texte.xml' \
      -F 'recordAddress=//oai:record' \
