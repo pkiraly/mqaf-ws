@@ -37,7 +37,7 @@ You can use the following parameters (see more details [here](https://github.com
   XML or CSV you do not have to specify)
   * `ndjson`: line delimited JSON in which every line is a new record (the default)
   * `json-array`: JSON file that contains an array of objects
-* `gzip` (optional, boolean) A flag to denote if the input file is gzipped
+* `gzip` (optional, String representing a boolean, default: "false") A flag to denote if the input file is gzipped
 * `recordAddress` (optional, String) The XPath expression that separates individual records within an XML file 
     (it can be used if the `inputFile` is an XML file)
 * `output` (mandatory, String) The output file name
