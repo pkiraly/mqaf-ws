@@ -23,16 +23,18 @@ You can use the following parameters (see more details [here](https://github.com
 
 * `schemaFile` (optional, String, default: "") The schema configuration file
 * `schemaFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
-* `measurements` (optional, String, default: "") The measurement configuration file
+* `measurements` (optional, String, default: "") The measurement configuration file that describes what kind of 
+   quality measurements should be run. See [details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file) 
 * `measurementsFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
 * `inputFile` (optional, String) The input file
-* `inputFormat` (optional, String) The format of input file. Right now it supports two JSON variants:
-  * `ndjson`: line delimited JSON in which every line is a new record (the default value)
+* `inputFormat` (optional, String) The format of input file if it is a JSON (if the file extension is 
+  XML or CSV you do not have to specify)
+  * `ndjson`: line delimited JSON in which every line is a new record (the default)
   * `json-array`: JSON file that contains an array of objects
 * `gzip` (optional, boolean) A flag to denote if the input file is gzipped
 * `recordAddress` (optional, String) The XPath expression that separates individual records within an XML file 
     (it can be used if the `inputFile` is an XML file)
-* `output` (optional, String) The output file
+* `output` (mandatory, String) The output file name
 * `outputFormat` (optional, String, defaultValue = "csv") The output format
 * `headers` (optional, String) A comma spearated string denoting the header of the input CSV 
    (if the input is a CSV file without header line)
