@@ -22,4 +22,9 @@ public class MqafConfiguration {
   public String getOutputDir() {
     return env.getProperty("OUTPUT_DIR");
   }
+
+  @Bean
+  public String getConfigDir() {
+    return env.getProperty("CONFIG_DIR");
+  }
 }

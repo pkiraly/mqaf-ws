@@ -79,17 +79,21 @@ public class MqafController {
     @RequestParam(value = "outputFormat", defaultValue = "ndjson") String outputFormat,
     @RequestParam(value = "output", defaultValue = "") String outputFile,
     @RequestParam(value = "recordAddress", defaultValue = "") String recordAddress,
+    @RequestParam(value = "sessionId", defaultValue = "") String sessionId,
+    @RequestParam(value = "reportId", defaultValue = "") String reportId,
     Model model
   ) {
     try {
       InputParameters inputParameters = new InputParameters(mqafConfiguration);
+      inputParameters.setSessionId(sessionId);
+      inputParameters.setReportId(reportId);
       logger.info(String.format("gzip: %s", gzip));
 
       Schema schema = inputParameters.createSchema(schemaContent, getInputFilePath(schemaFile), schemaFormat);
 
       // initialize config
       MeasurementConfiguration measurementConfig = inputParameters.createMeasurementConfiguration(
-        measurementsContent, getInputFilePath(measurementsFile), measurementsFormat);
+        measurementsContent, getConfigFilePath(measurementsFile), measurementsFormat);
       logger.info(String.format("isUniquenessMeasurementEnabled: %s", measurementConfig.isUniquenessMeasurementEnabled()));
 
       // Set the fields supplied by the command line to extractable fields
@@ -107,6 +111,8 @@ public class MqafController {
 
       // initialize input
       InputFormat inputFormatEnum = InputFormat.byCode(inputFormat);
+      logger.info("inputFile: " + inputFile);
+      logger.info("inputFile path: " + getInputFilePath(inputFile));
       RecordReader inputReader = RecordFactory.getRecordReader(getInputFilePath(inputFile), calculator, gzip, inputFormatEnum);
 
       // initialize output
@@ -127,9 +133,10 @@ public class MqafController {
 
       long counter = 0;
       List<String> header = calculator.getHeader();
-      logger.info(StringUtils.join(header, " -- "));
+      logger.info("header: " + StringUtils.join(header, " -- "));
       outputWriter.writeHeader(header);
 
+      logger.info("start reading");
       while (inputReader.hasNext()) {
         Map<String, List<MetricResult>> measurement = inputReader.next();
         outputWriter.writeResult(measurement);
@@ -140,6 +147,7 @@ public class MqafController {
           logger.info(String.format("Processed %s records. ", counter));
         }
       }
+      logger.info("end reading");
       logger.info(String.format("Assessment completed successfully with %s records. ", counter));
       outputWriter.close();
 
@@ -151,10 +159,13 @@ public class MqafController {
       return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_JSON)
         .headers(responseHeaders)
-        .body("{\"result\": 1}");
+        .body(Utils.toJson(Map.of("result", 1)));
 
     } catch (Exception e) {
       e.printStackTrace();
+      for (StackTraceElement element : e.getStackTrace()) {
+        logger.severe(element.toString());
+      }
       // logger.severe(String.format("Assessment failed with %s records. ", counter));
       logger.severe(String.format("Assessment failed"));
       logger.severe(e.getClass() + " " + e.getMessage());
@@ -165,7 +176,7 @@ public class MqafController {
       return ResponseEntity.internalServerError()
         .contentType(MediaType.APPLICATION_JSON)
         .headers(responseHeaders)
-        .body(String.format("{result: %s}", e.getMessage()));
+        .body(Utils.toJson(Map.of("result", e.getMessage())));
     }
   }
 
@@ -287,12 +298,16 @@ public class MqafController {
     return StringUtils.join(lines, "\n");
   }
 
-  private String getInputFilePath(String inputFile) {
-    return getPath(mqafConfiguration.getInputDir(), inputFile);
+  private String getInputFilePath(String file) {
+    return getPath(mqafConfiguration.getInputDir(), file);
   }
 
-  private String getOutputFilePath(String outputFile) {
-    return getPath(mqafConfiguration.getOutputDir(), outputFile);
+  private String getOutputFilePath(String file) {
+    return getPath(mqafConfiguration.getOutputDir(), file);
+  }
+
+  private String getConfigFilePath(String file) {
+    return getPath(mqafConfiguration.getConfigDir(), file);
   }
 
   private static String getPath(String dir, String file) {

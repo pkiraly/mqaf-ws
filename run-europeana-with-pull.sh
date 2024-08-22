@@ -15,7 +15,7 @@ usage:
  ${ME} [options]
 
 options:
- -r, --repository <arg>      the Docker repository where the image should be pulled from ('dockerhub' or 'github')
+ -r, --repository <arg>      the Docker repository where the image should be pulled from ('dockerhub' [default] or 'github')
  -h, --help                  display help
 EOF
   exit 1

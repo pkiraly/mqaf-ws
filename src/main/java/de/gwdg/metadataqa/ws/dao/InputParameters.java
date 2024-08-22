@@ -34,6 +34,8 @@ public class InputParameters {
   private String measurementsFormat;
   private String schemaFormat;
   private List<String> ruleColumns;
+  private String sessionId;
+  private String reportId;
 
   public InputParameters(MqafConfiguration mqafConfiguration) {
     this.mqafConfiguration = mqafConfiguration;
@@ -61,6 +63,26 @@ public class InputParameters {
 
   public MeasurementConfiguration getMeasurementConfig() {
     return measurementConfig;
+  }
+
+  public MqafConfiguration getMqafConfiguration() {
+    return mqafConfiguration;
+  }
+
+  public String getSessionId() {
+    return sessionId;
+  }
+
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
+  }
+
+  public String getReportId() {
+    return reportId;
+  }
+
+  public void setReportId(String reportId) {
+    this.reportId = reportId;
   }
 
   public List<String> getRuleColumns() {
@@ -109,7 +131,7 @@ public class InputParameters {
    * @throws IOException
    */
   private void saveToFile(String content, String schemaFile) throws IOException {
-    File exportSchemaFile = new File(mqafConfiguration.getInputDir() + "/" + schemaFile);
+    File exportSchemaFile = new File(mqafConfiguration.getOutputDir() + "/" + schemaFile);
     FileUtils.writeStringToFile(exportSchemaFile, content, Charset.forName("UTF-8"));
   }
 
@@ -154,17 +176,16 @@ public class InputParameters {
       "measurements", this.measurementFile.replace(getInputDir(), ""),
       "measurementsFormat", this.measurementsFormat,
       "schema", this.schemaFile.replace(getInputDir(), ""),
-      "schemaFormat", this.schemaFormat
+      "schemaFormat", this.schemaFormat,
+      "sessionId", this.sessionId,
+      "reportId", this.reportId
     );
-    ObjectMapper objectMapper = new ObjectMapper();
     try {
-      String json = objectMapper.writeValueAsString(inputParameters);
-      saveToFile(json, "input-parameters.json");
+      saveToFile(Utils.toJson(inputParameters), "input-parameters.json");
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
   }
 }

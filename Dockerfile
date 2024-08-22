@@ -1,8 +1,12 @@
 FROM tomcat:10.0.11-jdk17-openjdk-slim
+ENV RUN_USER nobody
+ENV RUN_GROUP 0
+ENV TZ=Europe/Berlin
 
 RUN  mkdir -p /opt/metadata-qa/input \
   && mkdir -p /opt/metadata-qa/output \
   && mkdir -p /opt/metadata-qa/scripts \
+  && mkdir -p /opt/metadata-qa/config \
   && chmod 777 /opt/metadata-qa/output
 
 ENV TZ=Etc/UTC
@@ -51,8 +55,8 @@ RUN apt-get update \
  && apt-get --assume-yes autoremove \
  && rm -rf /var/lib/apt/lists/*
 
-COPY target/mqaf-ws.war /usr/local/tomcat/webapps/
-COPY scripts/* /opt/metadata-qa/scripts
+COPY --chown=${RUN_USER}:${RUN_GROUP} target/mqaf-ws.war /usr/local/tomcat/webapps/
+COPY --chown=${RUN_USER}:${RUN_GROUP} scripts/* /opt/metadata-qa/scripts
 
 EXPOSE 8080
 
