@@ -36,6 +36,8 @@ You can use the following parameters (see more details [here](https://github.com
 * `outputFormat` (optional, String, defaultValue = "csv") The output format
 * `headers` (optional, String) A comma spearated string denoting the header of the input CSV 
    (if the input is a CSV file without header line)
+* `sessionId` (optional, String) A string for a session identifier (that identifies a user session in an external system)
+* `reportId` (optional, String) A string for report identifier (that identifies an analysis workflow in an external system)
 
 Validate a binary marc file in pure MARC21 schema:
 ```

@@ -26,6 +26,9 @@ services:
       - ./${MQAF_OUTPUT:-test-aqinda/output}:/opt/metadata-qa/output
     ports:
       - ${WS_WEBPORT:-8080}:8080             # Tomcat address
+    environment:
+      REPORT_WEBHOST: ${REPORT_WEBHOST:-localhost}
+      REPORT_WEBPORT: ${REPORT_WEBPORT:-90}
     container_name: ${WS_CONTAINER:-mqaf-ws}
     depends_on:
       - database

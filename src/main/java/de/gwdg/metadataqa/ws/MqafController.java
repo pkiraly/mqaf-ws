@@ -159,7 +159,12 @@ public class MqafController {
       return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_JSON)
         .headers(responseHeaders)
-        .body(Utils.toJson(Map.of("result", 1)));
+        .body(Utils.toJson(Map.of(
+          "result", 1,
+          "report", String.format("http://%s:%s/%s",
+            System.getenv().get("REPORT_WEBHOST"), System.getenv().get("REPORT_WEBPORT"),
+            getWebPath(sessionId, reportId))
+        )));
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -178,6 +183,16 @@ public class MqafController {
         .headers(responseHeaders)
         .body(Utils.toJson(Map.of("result", e.getMessage())));
     }
+  }
+
+  private String getWebPath(String sessionId, String reportId) {
+    StringBuilder sb = new StringBuilder();
+    if (StringUtils.isNotBlank(sessionId)) {
+      sb.append(sessionId);
+      if (StringUtils.isNotBlank(reportId))
+        sb.append("/").append(reportId);
+    }
+    return sb.toString();
   }
 
   private void postProcess(InputParameters inputParameters) throws IOException {

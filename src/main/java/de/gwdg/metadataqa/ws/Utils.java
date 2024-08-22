@@ -32,8 +32,6 @@ public class Utils {
       return objectMapper.writeValueAsString(data);
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 }
