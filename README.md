@@ -21,12 +21,13 @@ The REST API endpoint is available at https://YOURSERVER/ws/validate
 
 You can use the following parameters (see more details [here](https://github.com/pkiraly/metadata-qa-marc#validating-marc-records)):
 
-* `schemaFile` (optional, String, default: "") The schema configuration file. The file should be available in the container.
+* `schemaFile` (optional, String, default: "") The schema configuration file. The file should be available in 
+   the container's `/opt/metadata-qa/config` directory.
 * `schemaContent` (optional, String, default: "") The content of schema configuration file. If you use curl
   you can use the `-F measurementsContent=@filename` syntax to pass the content.
 * `schemaFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
 * `measurementsFile` (optional, String, default: "") The measurement configuration file that describes what kind of 
-   quality measurements should be run. The file should be available in the container.
+   quality measurements should be run. The file should be available in the container's `/opt/metadata-qa/config` directory.
    See [details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file) 
 * `measurementsContent` (optional, String, default: "") The content of a schema file. If you use curl 
    you can use the `-F measurementsContent=@filename` syntax to pass the content.
