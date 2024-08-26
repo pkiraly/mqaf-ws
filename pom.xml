@@ -82,7 +82,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.2.5</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/><!-- lookup parent from repository -->
 	</parent>
 
 	<dependencies>
@@ -95,7 +95,7 @@
 		<dependency>
 			<groupId>de.gwdg.metadataqa</groupId>
 			<artifactId>metadata-qa-api</artifactId>
-			<version>0.9.5</version>
+			<version>0.9.6-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
