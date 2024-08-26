@@ -121,8 +121,9 @@ public class MqafController {
       logger.info("inputFile: " + inputFile);
       String subfolder = System.getenv().get("UPLOAD_FOLDER");
       logger.info("upload folder: " + subfolder + " " + StringUtils.isBlank(subfolder));
-      logger.info("inputFile path: " + getInputFilePath(inputFile, subfolder));
-      RecordReader inputReader = RecordFactory.getRecordReader(getInputFilePath(inputFile), calculator, gzip, inputFormatEnum);
+      String inputFilePath = getInputFilePath(inputFile, subfolder);
+      logger.info("inputFile path: " + inputFilePath);
+      RecordReader inputReader = RecordFactory.getRecordReader(inputFilePath, calculator, gzip, inputFormatEnum);
 
       // initialize output
       // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
