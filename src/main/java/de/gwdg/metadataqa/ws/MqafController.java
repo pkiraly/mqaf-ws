@@ -118,11 +118,8 @@ public class MqafController {
 
       // initialize input
       InputFormat inputFormatEnum = InputFormat.byCode(inputFormat);
-      logger.info("inputFile: " + inputFile);
       String subfolder = System.getenv().get("UPLOAD_FOLDER");
-      logger.info("upload folder: " + subfolder + " " + StringUtils.isBlank(subfolder));
       String inputFilePath = getInputFilePath(inputFile, subfolder);
-      logger.info("inputFile path: " + inputFilePath);
       RecordReader inputReader = RecordFactory.getRecordReader(inputFilePath, calculator, gzip, inputFormatEnum);
 
       // initialize output
@@ -328,13 +325,10 @@ public class MqafController {
   }
 
   private String getInputFilePath(String file, String subfolder) {
-    logger.info("getInputFilePath() file: " + file);
-    logger.info("getInputFilePath() subfolder: " + subfolder);
     String subDir = mqafConfiguration.getInputDir();
     if (StringUtils.isNotBlank(subfolder))
       subDir += File.separator + subfolder;
     subDir = subDir.replace(File.separator + File.separator, File.separator);
-    logger.info("getInputFilePath() subDir: " + subDir);
     return getPath(subDir, file);
   }
 
@@ -347,19 +341,10 @@ public class MqafController {
   }
 
   private static String getPath(String dir, String file) {
-    logger.info("getPath() dir: " + dir);
-    logger.info("getPath() file: " + file);
-    logger.info("getPath() isNoneBlank: " + StringUtils.isNoneBlank(dir));
-    logger.info("getPath() exists: " + (new File(dir)).exists());
-
     if (StringUtils.isNoneBlank(dir) && (new File(dir)).exists()) {
-      logger.info("merge file");
       String separator = dir.endsWith(File.separator) ? "" : File.separator;
       file = dir + separator + file;
-      logger.info("merged file: " + file);
     }
-    logger.info("getPath() file2: " + file);
     return file;
   }
-
 }
