@@ -333,6 +333,7 @@ public class MqafController {
     String subDir = mqafConfiguration.getInputDir();
     if (StringUtils.isNotBlank(subfolder))
       subDir += File.separator + subfolder;
+    subDir = subDir.replace(File.separator + File.separator, File.separator);
     logger.info("getInputFilePath() subDir: " + subDir);
     return getPath(subDir, file);
   }
@@ -346,10 +347,13 @@ public class MqafController {
   }
 
   private static String getPath(String dir, String file) {
+    logger.info("getPath() dir: " + dir);
+    logger.info("getPath() file: " + file);
     if (StringUtils.isNoneBlank(dir) && (new File(dir)).exists()) {
       String separator = (dir.endsWith("/")) ? "" : "/";
       file = dir + separator + file;
     }
+    logger.info("getPath() file2: " + file);
     return file;
   }
 
