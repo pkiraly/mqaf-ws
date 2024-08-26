@@ -353,8 +353,10 @@ public class MqafController {
     logger.info("getPath() exists: " + (new File(dir)).exists());
 
     if (StringUtils.isNoneBlank(dir) && (new File(dir)).exists()) {
-      String separator = (dir.endsWith(File.separator)) ? "" : File.separator;
+      logger.info("merge file");
+      String separator = dir.endsWith(File.separator) ? "" : File.separator;
       file = dir + separator + file;
+      logger.info("merged file: " + file);
     }
     logger.info("getPath() file2: " + file);
     return file;
