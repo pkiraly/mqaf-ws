@@ -119,7 +119,9 @@ public class MqafController {
       // initialize input
       InputFormat inputFormatEnum = InputFormat.byCode(inputFormat);
       logger.info("inputFile: " + inputFile);
-      logger.info("inputFile path: " + getInputFilePath(inputFile));
+      String subfolder = System.getenv().get("UPLOAD_FOLDER");
+      logger.info("upload folder: " + subfolder + " " + StringUtils.isBlank(subfolder));
+      logger.info("inputFile path: " + getInputFilePath(inputFile, subfolder));
       RecordReader inputReader = RecordFactory.getRecordReader(getInputFilePath(inputFile), calculator, gzip, inputFormatEnum);
 
       // initialize output
@@ -322,6 +324,13 @@ public class MqafController {
 
   private String getInputFilePath(String file) {
     return getPath(mqafConfiguration.getInputDir(), file);
+  }
+
+  private String getInputFilePath(String file, String subfolder) {
+    String subDir = mqafConfiguration.getInputDir();
+    if (StringUtils.isNotBlank(subfolder))
+      subDir += File.separator + subfolder;
+    return getPath(subDir, file);
   }
 
   private String getOutputFilePath(String file) {
