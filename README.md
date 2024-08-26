@@ -23,14 +23,16 @@ You can use the following parameters (see more details [here](https://github.com
 
 * `schemaFile` (optional, String, default: "") The schema configuration file. The file should be available in 
    the container's `/opt/metadata-qa/config` directory.
-* `schemaContent` (optional, MultipartFile, default: null) The content of schema configuration file. If you use curl
-  you can use the `-F measurementsContent=@filename` syntax to pass the content.
+* `schemaContent` (optional, multipart/form-data, default: null) The content of schema configuration file. If you use curl
+   you can use the `-F measurementsContent=@filename` syntax to pass the content. 
+   See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
 * `schemaFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
 * `measurementsFile` (optional, String, default: "") The measurement configuration file that describes what kind of 
    quality measurements should be run. The file should be available in the container's `/opt/metadata-qa/config` directory.
    See [details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file) 
-* `measurementsContent` (optional, MultipartFile, default: null) The content of a schema file. If you use curl 
+* `measurementsContent` (optional, multipart/form-data, default: null) The content of a schema file. If you use curl 
    you can use the `-F measurementsContent=@filename` syntax to pass the content.
+   See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
 * `measurementsFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
 * `inputFile` (optional, String) The input file
 * `inputFormat` (optional, String) The format of input file if it is a JSON (if the file extension is 
