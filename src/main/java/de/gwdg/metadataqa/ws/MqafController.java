@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,13 +67,13 @@ public class MqafController {
 
   @PostMapping("/validate")
   public ResponseEntity<String> validate(
-    @RequestParam(value = "schemaContent", defaultValue = "") String schemaContent,
+    // @RequestParam(value = "schemaContent", defaultValue = "") String schemaContent,
     @RequestParam(value = "schemaFile", defaultValue = "") String schemaFile,
     @RequestParam(value = "schemaFormat", defaultValue = "") String schemaFormat,
-    @RequestParam(value = "headers", defaultValue = "") String headers,
-    @RequestParam(value = "measurementsContent", defaultValue = "") String measurementsContent,
+    // @RequestParam(value = "measurementsContent", defaultValue = "") String measurementsContent,
     @RequestParam(value = "measurementsFile", defaultValue = "") String measurementsFile,
     @RequestParam(value = "measurementsFormat", defaultValue = "") String measurementsFormat,
+    @RequestParam(value = "headers", defaultValue = "") String headers,
     @RequestParam(value = "inputFile", defaultValue = "") String inputFile,
     @RequestParam(value = "inputFormat", defaultValue = "") String inputFormat,
     @RequestParam(value = "gzip", defaultValue = "false") boolean gzip,
@@ -81,9 +82,15 @@ public class MqafController {
     @RequestParam(value = "recordAddress", defaultValue = "") String recordAddress,
     @RequestParam(value = "sessionId", defaultValue = "") String sessionId,
     @RequestParam(value = "reportId", defaultValue = "") String reportId,
+    @RequestParam("schemaContent") MultipartFile schemaStream,
+    @RequestParam("measurementsContent") MultipartFile measurementsStream,
     Model model
   ) {
+    logger.info("validate");
     try {
+      String schemaContent = schemaStream != null ? Utils.streamToString(schemaStream.getInputStream()) : null;
+      String measurementsContent = measurementsStream != null ? Utils.streamToString(measurementsStream.getInputStream()) : null;
+
       InputParameters inputParameters = new InputParameters(mqafConfiguration);
       inputParameters.setSessionId(sessionId);
       inputParameters.setReportId(reportId);

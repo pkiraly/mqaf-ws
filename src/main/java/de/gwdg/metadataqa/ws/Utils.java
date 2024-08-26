@@ -7,6 +7,7 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -31,6 +32,19 @@ public class Utils {
     try {
       return objectMapper.writeValueAsString(data);
     } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static String streamToString(InputStream inputStream)  {
+    try {
+      ByteArrayOutputStream result = new ByteArrayOutputStream();
+      byte[] buffer = new byte[1024];
+      for (int length; (length = inputStream.read(buffer)) != -1; ) {
+        result.write(buffer, 0, length);
+      }
+      return result.toString("UTF-8");
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }

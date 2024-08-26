@@ -9,6 +9,7 @@ import de.gwdg.metadataqa.api.schema.Schema;
 import de.gwdg.metadataqa.ws.MqafConfiguration;
 import de.gwdg.metadataqa.ws.Utils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -93,17 +94,14 @@ public class InputParameters {
     this.ruleColumns = ruleColumns;
   }
 
-  public Schema createSchema(String schemaContent, String schemaFile, String schemaFormat) throws FileNotFoundException {
+  public Schema createSchema(String schemaContent,
+                             String schemaFile,
+                             String schemaFormat) throws FileNotFoundException {
+    logger.info("Create schema configuration");
     this.schemaFormat = schemaFormat;
     try {
-      if (schemaFile != null && !schemaFile.isEmpty()) {
-        this.schemaFile = schemaFile;
-        switch (schemaFormat) {
-          case YAML: schema = ConfigurationReader.readSchemaYaml(schemaFile).asSchema(); break;
-          case JSON:
-          default:   schema = ConfigurationReader.readSchemaYaml(schemaFile).asSchema();
-        }
-      } else {
+      if (StringUtils.isNotBlank(schemaContent)) {
+        logger.info("Create schema from content");
         switch (schemaFormat) {
           case YAML:
             schema = Utils.loadYaml(schemaContent, SchemaConfiguration.class).asSchema();
@@ -116,6 +114,14 @@ public class InputParameters {
             this.schemaFile = "schema.json";
             saveToFile(schemaContent, this.schemaFile);
             break;
+        }
+      } else if (schemaFile != null && !schemaFile.isEmpty()) {
+        logger.info("Create schema from file: " + schemaFile);
+        this.schemaFile = schemaFile;
+        switch (schemaFormat) {
+          case YAML: schema = ConfigurationReader.readSchemaYaml(schemaFile).asSchema(); break;
+          case JSON:
+          default:   schema = ConfigurationReader.readSchemaYaml(schemaFile).asSchema();
         }
       }
     } catch (Exception e) {
@@ -136,20 +142,13 @@ public class InputParameters {
   }
 
   public MeasurementConfiguration createMeasurementConfiguration(String measurementsContent,
-                                                                      String measurementsFile,
-                                                                      String measurementsFormat)
+                                                                 String measurementsFile,
+                                                                 String measurementsFormat)
     throws IOException, FileNotFoundException {
+    logger.info("Create measurement configuration");
     this.measurementsFormat = measurementsFormat;
-    if (measurementsFile != null && !measurementsFile.isEmpty()) {
-      logger.info("Read MeasurementConfiguration from file: " + measurementsFile);
-      logger.info("measurementsFormat: " + measurementsFormat);
-      this.measurementFile = measurementsFile;
-      switch (measurementsFormat) {
-        case YAML: measurementConfig = ConfigurationReader.readMeasurementJson(measurementsFile); break;
-        case JSON:
-        default:   measurementConfig = ConfigurationReader.readMeasurementYaml(measurementsFile);
-      }
-    } else {
+    if (StringUtils.isNotBlank(measurementsContent)) {
+      logger.info("Create measurement configuration from content");
       switch (measurementsFormat) {
         case YAML:
           measurementConfig = Utils.loadYaml(measurementsContent, MeasurementConfiguration.class);
@@ -162,6 +161,15 @@ public class InputParameters {
           this.measurementFile = "measurement.json";
           saveToFile(measurementsContent, this.measurementFile);
           break;
+      }
+    } else if (measurementsFile != null && !measurementsFile.isEmpty()) {
+      logger.info("Create measurement configuration from file: " + measurementsFile);
+      logger.info("measurementsFormat: " + measurementsFormat);
+      this.measurementFile = measurementsFile;
+      switch (measurementsFormat) {
+        case YAML: measurementConfig = ConfigurationReader.readMeasurementJson(measurementsFile); break;
+        case JSON:
+        default:   measurementConfig = ConfigurationReader.readMeasurementYaml(measurementsFile);
       }
     }
     return measurementConfig;
