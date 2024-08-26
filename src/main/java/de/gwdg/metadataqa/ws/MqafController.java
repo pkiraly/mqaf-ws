@@ -349,8 +349,11 @@ public class MqafController {
   private static String getPath(String dir, String file) {
     logger.info("getPath() dir: " + dir);
     logger.info("getPath() file: " + file);
+    logger.info("getPath() isNoneBlank: " + StringUtils.isNoneBlank(dir));
+    logger.info("getPath() exists: " + (new File(dir)).exists());
+
     if (StringUtils.isNoneBlank(dir) && (new File(dir)).exists()) {
-      String separator = (dir.endsWith("/")) ? "" : "/";
+      String separator = (dir.endsWith(File.separator)) ? "" : File.separator;
       file = dir + separator + file;
     }
     logger.info("getPath() file2: " + file);
