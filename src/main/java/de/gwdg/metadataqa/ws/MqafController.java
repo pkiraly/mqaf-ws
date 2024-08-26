@@ -328,9 +328,12 @@ public class MqafController {
   }
 
   private String getInputFilePath(String file, String subfolder) {
+    logger.info("getInputFilePath() file: " + file);
+    logger.info("getInputFilePath() subfolder: " + subfolder);
     String subDir = mqafConfiguration.getInputDir();
     if (StringUtils.isNotBlank(subfolder))
       subDir += File.separator + subfolder;
+    logger.info("getInputFilePath() subDir: " + subDir);
     return getPath(subDir, file);
   }
 

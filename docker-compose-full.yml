@@ -29,6 +29,7 @@ services:
     environment:
       REPORT_WEBHOST: ${REPORT_WEBHOST:-localhost}
       REPORT_WEBPORT: ${REPORT_WEBPORT:-90}
+      UPLOAD_FOLDER: /shared/uploads
     container_name: ${WS_CONTAINER:-mqaf-ws}
     depends_on:
       - database
