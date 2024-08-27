@@ -35,7 +35,7 @@ if (args$verbose) {
 # print(paste("fields:", args$fields))
 fields <- unlist(strsplit(args$fields, split = ","))
 
-df <- read_csv(args$csv, show_col_types = FALSE)
+df <- read_csv(args$csv)
 total <- nrow(df)
 count_df <- tibble(total = total)
 # print(count_df)
