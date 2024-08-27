@@ -50,6 +50,10 @@ while true ; do
   esac
 done
 
+echo OUTPUT_DIR: ${OUTPUT_DIR}
+echo INPUT_DIR: ${INPUT_DIR}
+echo OUTPUT_FILE_PATH: ${OUTPUT_FILE_PATH}
+
 DIR=$(dirname $0)
 cd ${DIR}
 # echo "Hello world!"
