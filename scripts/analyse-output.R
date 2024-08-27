@@ -56,9 +56,7 @@ make_stat <- function(field) {
 # print('create field list')
 all_fields    <- names(df)
 score_fields  <- all_fields[grep('_score$', all_fields)]
-score_fields
 status_fields <- all_fields[grep('_status$', all_fields)]
-status_fields
 
 # print('calculate score')
 lapply(score_fields, make_stat)
@@ -90,7 +88,6 @@ for (row in 1:length(status_fields)) {
     df_stat[row, i] <- v
   }
 }
-df_stat
 
 write_csv(df_stat, paste0(args$outputDir, '/shacl4bib-stat.csv'))
 cat("\n")
