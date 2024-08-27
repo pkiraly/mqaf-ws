@@ -73,6 +73,6 @@ mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output.sql
 #                          --outputDir ${OUTPUT_DIR} \
 #                          --fields ${RULE_COLUMNS} \
 #                          -v
-chmod 755 -R ${OUTPUT_DIR}
+chmod 777 -R ${OUTPUT_DIR}
 chown www-data:www-data -R ${OUTPUT_DIR}
 # chmod 755 -R ${INPUT_DIR}

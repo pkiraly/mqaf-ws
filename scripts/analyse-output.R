@@ -31,17 +31,17 @@ if (args$verbose) {
   write("writing some verbose output to standard error...\n", stderr()) 
 }
 
-print(paste("csv:", args$csv))
-print(paste("fields:", args$fields))
+# print(paste("csv:", args$csv))
+# print(paste("fields:", args$fields))
 fields <- unlist(strsplit(args$fields, split = ","))
 
-df <- read_csv(args$csv)
+df <- read_csv(args$csv, show_col_types = FALSE)
 total <- nrow(df)
 count_df <- tibble(total = total)
-print(count_df)
+# print(count_df)
 write_csv(count_df, paste0(args$outputDir, "/count.csv"))
 
-print('make status')
+# print('make status')
 status <- df %>% select(id, ends_with('_status'))
 score <- df %>% select(id, ends_with('_score'))
 
@@ -53,17 +53,17 @@ make_stat <- function(field) {
   write_csv(freq, paste0(args$outputDir, "/", field, ".csv"))
 }
 
-print('create field list')
+# print('create field list')
 all_fields    <- names(df)
 score_fields  <- all_fields[grep('_score$', all_fields)]
 score_fields
 status_fields <- all_fields[grep('_status$', all_fields)]
 status_fields
 
-print('calculate score')
+# print('calculate score')
 lapply(score_fields, make_stat)
 
-print('calculate status')
+# print('calculate status')
 df_stat <- tibble(
   'id' = character(),
   '0' = numeric(),

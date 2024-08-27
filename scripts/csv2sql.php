@@ -26,7 +26,8 @@ $in = $parameters['csvFile']; // $argv[1];
 $table = $parameters['tableName']; // $argv[2];
 $string_fields = $parameters['fieldList'] ?? []; // isset($argv[3]) && !empty($argv[3]) ? explode(',', $argv[3]) : [];
 
-$out = $parameters['outputDir'] . '/' . preg_replace('/\.csv$/', '.sql', $in);
+// $out = $parameters['outputDir'] . '/' . preg_replace('/\.csv$/', '.sql', $in);
+$out = preg_replace('/\.csv$/', '.sql', $in);
 error_log(sprintf('[%s:%d] creating %s', basename(__FILE__), __LINE__, $out));
 if (file_exists($out))
   unlink($out);
