@@ -1,7 +1,6 @@
 package de.gwdg.metadataqa.ws.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.gwdg.metadataqa.api.configuration.ConfigurationReader;
 import de.gwdg.metadataqa.api.configuration.MeasurementConfiguration;
 import de.gwdg.metadataqa.api.configuration.SchemaConfiguration;
@@ -37,6 +36,8 @@ public class InputParameters {
   private List<String> ruleColumns;
   private String sessionId;
   private String reportId;
+  private String reportPath;
+  private String outputFile;
 
   public InputParameters(MqafConfiguration mqafConfiguration) {
     this.mqafConfiguration = mqafConfiguration;
@@ -137,7 +138,7 @@ public class InputParameters {
    * @throws IOException
    */
   private void saveToFile(String content, String schemaFile) throws IOException {
-    File exportSchemaFile = new File(mqafConfiguration.getOutputDir() + "/" + schemaFile);
+    File exportSchemaFile = new File(getReportDir() + "/" + schemaFile);
     FileUtils.writeStringToFile(exportSchemaFile, content, Charset.forName("UTF-8"));
   }
 
@@ -195,5 +196,28 @@ public class InputParameters {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void setReportPath(String reportPath) {
+    this.reportPath = reportPath;
+  }
+
+  public String getReportDir() {
+    String dir = mqafConfiguration.getOutputDir();
+    if (StringUtils.isNotBlank(reportPath))
+      dir += File.separator + reportPath;
+    return dir;
+  }
+
+  public void setOutputFile(String outputFile) {
+    this.outputFile = outputFile;
+  }
+
+  public String getOutputFile() {
+    return outputFile;
+  }
+
+  public String getReportPath() {
+    return reportPath;
   }
 }

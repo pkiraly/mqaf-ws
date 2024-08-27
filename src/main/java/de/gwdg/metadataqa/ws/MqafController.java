@@ -125,7 +125,14 @@ public class MqafController {
       // initialize output
       // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
       // write to std out if no file was given
-      outputFile = getOutputFilePath(outputFile);
+      inputParameters.setOutputFile(outputFile);
+      inputParameters.setReportPath(getWebPath(sessionId, reportId));
+
+      File dir = new File(mqafConfiguration.getOutputDir(), inputParameters.getReportPath());
+      if (!dir.exists()) {
+        dir.mkdirs();
+      }
+      outputFile = getOutputFilePath(outputFile, inputParameters);
       inputParameters.setOutputFilePath(outputFile);
       inputParameters.saveInputParameters();
 
@@ -208,7 +215,7 @@ public class MqafController {
     // sudo -u www-data
     List<String> commands = List.of(
       String.format("php /opt/metadata-qa/scripts/csv2sql.php --csvFile %s --tableName 'output' --outputDir %s",
-        inputParameters.getOutputFilePath(), inputParameters.getOutputDir()),
+        inputParameters.getOutputFilePath(), inputParameters.getReportDir()),
       /*
       String.format("mysql -h database -u mqaf -pmqaf mqaf < %s/output-definition.sql",
         inputParameters.getOutputDir()),
@@ -216,18 +223,16 @@ public class MqafController {
         inputParameters.getOutputDir()),
        */
       String.format("Rscript /opt/metadata-qa/scripts/analyse-output.R --csv %s --outputDir %s --fields %s -v",
-        inputParameters.getOutputFilePath(), inputParameters.getOutputDir(),
+        inputParameters.getOutputFilePath(), inputParameters.getReportDir(),
         StringUtils.join(inputParameters.getRuleColumns(), ",")),
       String.format("/opt/metadata-qa/scripts/postprocess.sh"
           + " --outputFilePath %s"
           + " --outputDir %s"
           + " --inputDir %s"
           + " --ruleColumns %s",
-        inputParameters.getOutputFilePath(), inputParameters.getOutputDir(), inputParameters.getInputDir(),
+        inputParameters.getOutputFilePath(), inputParameters.getReportDir(), inputParameters.getInputDir(),
         StringUtils.join(inputParameters.getRuleColumns(), ",")
       )
-      /*
-       */
     );
 
     Process process = null;
@@ -301,7 +306,7 @@ public class MqafController {
     ruleColumns.add("rulecatalog_score");
     inputParameters.setRuleColumns(ruleColumns);
 
-    try (PrintWriter out = new PrintWriter(inputParameters.getOutputDir() + "/output-definition.sql")) {
+    try (PrintWriter out = new PrintWriter(inputParameters.getReportDir() + "/output-definition.sql")) {
       out.println(createDatabaseDefinitionSQL(mapping));
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -332,8 +337,8 @@ public class MqafController {
     return getPath(subDir, file);
   }
 
-  private String getOutputFilePath(String file) {
-    return getPath(mqafConfiguration.getOutputDir(), file);
+  private String getOutputFilePath(String file, InputParameters inputParameters) {
+    return getPath(inputParameters.getReportDir(), file);
   }
 
   private String getConfigFilePath(String file) {
