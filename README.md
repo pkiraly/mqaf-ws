@@ -68,8 +68,13 @@ curl -X POST \
 If it was successfull, the API returns a simple JSON report:
 
 ```JSON
-{result: 1}
+{
+  "result": 1,
+  "report": "http://localhost/mqaf-report"
+}
 ```
+Where result `1` denotes that the process were successfully finished, and `report` displays an URL where the 
+report can be seen (given that the API is used together with the [MQAF Report](https://github.com/pkiraly/mqaf-report) tool.)
 
 ### Output
 
