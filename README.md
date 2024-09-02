@@ -71,6 +71,26 @@ If it was successfull, the API returns a simple JSON report:
 {result: 1}
 ```
 
+### Output
+
+The process produces output in two steps:
+
+1. The Java application iterates all the records of the input (based on the `recordAddress` parameter), and 
+   generates a Comma Sperated Values file (the default name is `output.csv`, but that can be overwriten by the
+   `output` parameter). In the file each rows represent an individual record. The columns are dependent on the 
+   input schema, usually it has an identifier column and columns for each rules. If the ... parameter is `BOTH`
+   there will be two columns for each rule: a `[rule-identifier]_status` that contain the values of `0` (failed),
+   `1` (passed) or `NA` (the data element is not available), and `[rule-identifier]_score` that contains a
+   numeric value according to the `successScore`, `failureScore` and `naScore` values associated with the rule.
+4. A postprocessing method creates additional files based on the `output.csv`
+   a. `count.csv` records the number of records
+   b. `output.sql` is an SQL script that is injected to MySQL/SQLite3 database, so the values can be read from that
+   c. `shacl4bib-stat.csv` a CSV file that has four columns: 
+    - `id`: the identifier of the rule
+    - `0`: the number of records that failed the check against the rule
+    - `1`: the number of records that passed the check against the rule
+    - `NA`: the number of records that does not have the data element the rule checks
+
 ## Docker
 
 The application is available as a docker image `pkiraly/mqaf-ws:latest`. It defines the following volumes:
