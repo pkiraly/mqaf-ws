@@ -82,14 +82,14 @@ The process produces output in two steps:
    there will be two columns for each rule: a `[rule-identifier]_status` that contain the values of `0` (failed),
    `1` (passed) or `NA` (the data element is not available), and `[rule-identifier]_score` that contains a
    numeric value according to the `successScore`, `failureScore` and `naScore` values associated with the rule.
-4. A postprocessing method creates additional files based on the `output.csv`
-   a. `count.csv` records the number of records
-   b. `output.sql` is an SQL script that is injected to MySQL/SQLite3 database, so the values can be read from that
-   c. `shacl4bib-stat.csv` a CSV file that has four columns: 
-    - `id`: the identifier of the rule
-    - `0`: the number of records that failed the check against the rule
-    - `1`: the number of records that passed the check against the rule
-    - `NA`: the number of records that does not have the data element the rule checks
+2. A postprocessing method creates additional files based on the `output.csv`
+   - `count.csv` records the number of records
+   - `output.sql` is an SQL script that is injected to MySQL/SQLite3 database, so the values can be read from that
+   - `shacl4bib-stat.csv` a CSV file that has four columns: 
+     - `id`: the identifier of the rule
+     - `0`: the number of records that failed the check against the rule
+     - `1`: the number of records that passed the check against the rule
+     - `NA`: the number of records that does not have the data element the rule checks
 
 ## Docker
 
