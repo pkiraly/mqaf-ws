@@ -21,20 +21,31 @@ The REST API endpoint is available at https://YOURSERVER/ws/validate
 
 You can use the following parameters (see more details [here](https://github.com/pkiraly/metadata-qa-marc#validating-marc-records)):
 
-* `schemaFile` (optional, String, default: "") The schema configuration file. The file should be available in 
+Schema configuration related parameters:
+* `schemaContent` (optional, String, default: "") A JSON or YAML string containing the schema configuration.
+* `schemaStream` (optional, multipart/form-data, default: null) The content stream of a schema configuration file
+   encoded as multipart/form-data. It is used by web forms when you upload a file.
+   If you use curl you can use the `-F measurementsContent=@filename` syntax to pass the content. 
+   See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
+* `schemaFileName` (optional, String, default: "schema.json") The schema configuration file. The file should be available in
    the container's `/opt/metadata-qa/config` directory.
-* `schemaContent` (optional, multipart/form-data, default: null) The content of schema configuration file. If you use curl
-   you can use the `-F measurementsContent=@filename` syntax to pass the content. 
+* `schemaFormat` (mandatory, String, default: "jaon") The format of the Schema file (`yaml` or `json`).
+
+Measurement configuration related parameters (see 
+[details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file)
+about the configuration)
+
+* `measurementsContent` (optional, String, default: "") A JSON or YAML string containing the measurement configuration.
+* `measurementsStream` (optional, multipart/form-data, default: null) The content stream of a measurement configuration
+   file encoded as multipart/form-data. If you use curl you can use the `-F measurementsContent=@filename` syntax to pass the content.
    See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
-* `schemaFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
-* `measurementsFile` (optional, String, default: "") The measurement configuration file that describes what kind of 
-   quality measurements should be run. The file should be available in the container's `/opt/metadata-qa/config` directory.
-   See [details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file) 
-* `measurementsContent` (optional, multipart/form-data, default: null) The content of a schema file. If you use curl 
-   you can use the `-F measurementsContent=@filename` syntax to pass the content.
-   See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
-* `measurementsFormat` (optional, String, default: "yaml") The format of the Schema file (`yaml` or `json`)
-* `inputFile` (optional, String) The input file
+* `measurementsFileName` (optional, String, default: "measurements.json") The measurement configuration file that
+   describes what kind of quality measurements should be run. The file should be available in the container's
+   `/opt/metadata-qa/input` directory.
+* `measurementsFormat` (optional, String, default: "json") The format of the Schema file (`yaml` or `json`)
+
+Other parameters
+* `inputFile` (optional, String) The name of the input file. It should be available at the `/opt/metadata-qa/input` directory.
 * `inputFormat` (optional, String) The format of input file if it is a JSON (if the file extension is 
   XML or CSV you do not have to specify)
   * `ndjson`: line delimited JSON in which every line is a new record (the default)
@@ -53,7 +64,7 @@ Validate a binary marc file in pure MARC21 schema:
 ```
 DIR=/path/to/files
 curl -X POST \
-     -F 'schemaContent=@${DIR}/dc-schema.yaml' \
+     -F 'schemaStream=@${DIR}/dc-schema.yaml' \
      -F 'schemaFormat=yaml' \
      -F 'measurementsContent=@${DIR}/measurement.json' \
      -F 'measurementsFormat=json' \
@@ -69,12 +80,15 @@ If it was successfull, the API returns a simple JSON report:
 
 ```JSON
 {
-  "result": 1,
+  "success": true,
   "report": "http://localhost/mqaf-report"
 }
 ```
-Where result `1` denotes that the process were successfully finished, and `report` displays an URL where the 
-report can be seen (given that the API is used together with the [MQAF Report](https://github.com/pkiraly/mqaf-report) tool.)
+Where
+- `success` `true` denotes that the process were successfully finished, otherwise its value is `false`. 
+- `report` displays an URL where the report can be seen (given that the API is used together 
+  with the [MQAF Report](https://github.com/pkiraly/mqaf-report) tool.)
+- `errorMessage` provides some information about the error (if any).
 
 ### Output
 

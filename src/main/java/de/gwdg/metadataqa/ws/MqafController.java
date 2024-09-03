@@ -67,12 +67,14 @@ public class MqafController {
 
   @PostMapping("/validate")
   public ResponseEntity<String> validate(
-    // @RequestParam(value = "schemaContent", defaultValue = "") String schemaContent,
-    @RequestParam(value = "schemaFile", defaultValue = "") String schemaFile,
-    @RequestParam(value = "schemaFormat", defaultValue = "") String schemaFormat,
-    // @RequestParam(value = "measurementsContent", defaultValue = "") String measurementsContent,
-    @RequestParam(value = "measurementsFile", defaultValue = "") String measurementsFile,
-    @RequestParam(value = "measurementsFormat", defaultValue = "") String measurementsFormat,
+    @RequestParam(value = "schemaContent", defaultValue = "") String schemaContent,
+    @RequestParam(value = "schemaStream", required = false) MultipartFile schemaStream,
+    @RequestParam(value = "schemaFileName", defaultValue = "schema.json") String schemaFileName,
+    @RequestParam(value = "schemaFormat", defaultValue = "json") String schemaFormat,
+    @RequestParam(value = "measurementsContent", defaultValue = "") String measurementsContent,
+    @RequestParam(value = "measurementsStream", required = false) MultipartFile measurementsStream,
+    @RequestParam(value = "measurementsFileName", defaultValue = "measurements.json") String measurementsFileName,
+    @RequestParam(value = "measurementsFormat", defaultValue = "json") String measurementsFormat,
     @RequestParam(value = "headers", defaultValue = "") String headers,
     @RequestParam(value = "inputFile", defaultValue = "") String inputFile,
     @RequestParam(value = "inputFormat", defaultValue = "") String inputFormat,
@@ -82,34 +84,21 @@ public class MqafController {
     @RequestParam(value = "recordAddress", defaultValue = "") String recordAddress,
     @RequestParam(value = "sessionId", defaultValue = "") String sessionId,
     @RequestParam(value = "reportId", defaultValue = "") String reportId,
-    @RequestParam("schemaContent") MultipartFile schemaStream,
-    @RequestParam("measurementsContent") MultipartFile measurementsStream,
     Model model
   ) {
     logger.info("validate");
     try {
-      String schemaContent = schemaStream != null ? Utils.streamToString(schemaStream.getInputStream()) : null;
-      String measurementsContent = measurementsStream != null ? Utils.streamToString(measurementsStream.getInputStream()) : null;
-
       InputParameters inputParameters = new InputParameters(mqafConfiguration);
       inputParameters.setSessionId(sessionId);
       inputParameters.setReportId(reportId);
-      logger.info(String.format("gzip: %s", gzip));
 
-      Schema schema = inputParameters.createSchema(schemaContent, getInputFilePath(schemaFile), schemaFormat);
+      Schema schema = getSchema(schemaStream, schemaContent, schemaFileName, schemaFormat, inputParameters);
+      logger.info("schema: " + schema);
 
-      // initialize config
-      MeasurementConfiguration measurementConfig = inputParameters.createMeasurementConfiguration(
-        measurementsContent, getConfigFilePath(measurementsFile), measurementsFormat);
+      MeasurementConfiguration measurementConfig = getMeasurementConfig(measurementsContent, measurementsStream, measurementsFileName, measurementsFormat, inputParameters);
       logger.info(String.format("isUniquenessMeasurementEnabled: %s", measurementConfig.isUniquenessMeasurementEnabled()));
 
-      // Set the fields supplied by the command line to extractable fields
-      if (!headers.equals("")) {
-        String[] headersList = StringUtils.split(headers, ",");
-        for (String h : headersList) {
-          schema.addExtractableField(h, schema.getPathByLabel(h).getPath());
-        }
-      }
+      setHeaders(headers, schema);
 
       // initialize calculator
       CalculatorFacade calculator = new CalculatorFacade(measurementConfig);
@@ -174,7 +163,7 @@ public class MqafController {
         .contentType(MediaType.APPLICATION_JSON)
         .headers(responseHeaders)
         .body(Utils.toJson(Map.of(
-          "result", 1,
+          "success", true,
           "report", String.format("http://%s:%s/%s",
             System.getenv().get("REPORT_WEBHOST"), System.getenv().get("REPORT_WEBPORT"),
             getWebPath(sessionId, reportId))
@@ -195,8 +184,51 @@ public class MqafController {
       return ResponseEntity.internalServerError()
         .contentType(MediaType.APPLICATION_JSON)
         .headers(responseHeaders)
-        .body(Utils.toJson(Map.of("result", e.getMessage())));
+        .body(Utils.toJson(Map.of(
+          "success", false,
+          "errorMessage", e.getMessage())));
     }
+  }
+
+  /**
+   * Set the fields supplied by the command line to extractable fields
+   * @param headers
+   * @param schema
+   */
+  private static void setHeaders(String headers, Schema schema) {
+    if (!headers.equals("")) {
+      String[] headersList = StringUtils.split(headers, ",");
+      for (String h : headersList) {
+        schema.addExtractableField(h, schema.getPathByLabel(h).getPath());
+      }
+    }
+  }
+
+  private Schema getSchema(MultipartFile schemaStream,
+                           String schemaContent,
+                           String schemaFileName,
+                           String schemaFormat,
+                           InputParameters inputParameters) throws IOException {
+    if (StringUtils.isBlank(schemaContent)) {
+      if (schemaStream != null)
+        schemaContent = Utils.streamToString(schemaStream.getInputStream());
+    }
+    return inputParameters.createSchema(schemaContent, getInputFilePath(schemaFileName), schemaFormat);
+  }
+
+  private MeasurementConfiguration getMeasurementConfig(String measurementsContent,
+                                                        MultipartFile measurementsStream,
+                                                        String measurementsFileName,
+                                                        String measurementsFormat,
+                                                        InputParameters inputParameters) throws IOException {
+    if (StringUtils.isBlank(measurementsContent)) {
+      if (measurementsStream != null)
+        measurementsContent = Utils.streamToString(measurementsStream.getInputStream());
+    }
+
+    return inputParameters.createMeasurementConfiguration(measurementsContent,
+                                                          getConfigFilePath(measurementsFileName),
+                                                          measurementsFormat);
   }
 
   private String getWebPath(String sessionId, String reportId) {

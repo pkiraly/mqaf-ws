@@ -61,7 +61,7 @@ status_fields <- all_fields[grep('_status$', all_fields)]
 print('calculate score')
 lapply(score_fields, make_stat)
 
-# print('calculate status')
+print('calculate status')
 df_stat <- tibble(
   'id' = character(),
   '0' = numeric(),
