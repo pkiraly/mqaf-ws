@@ -46,7 +46,7 @@ status <- df %>% select(id, ends_with('_status'))
 score <- df %>% select(id, ends_with('_score'))
 
 make_stat <- function(field) {
-  print(paste("field: ", field))
+  # print(paste("field: ", field))
   freq <- score %>% select(all_of(field)) %>% table() %>% as_tibble()
   names(freq) <- c('value', 'count')
   freq$percent <- freq$count * 100 / total
@@ -58,7 +58,7 @@ all_fields    <- names(df)
 score_fields  <- all_fields[grep('_score$', all_fields)]
 status_fields <- all_fields[grep('_status$', all_fields)]
 
-# print('calculate score')
+print('calculate score')
 lapply(score_fields, make_stat)
 
 # print('calculate status')

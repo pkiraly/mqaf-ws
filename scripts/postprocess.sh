@@ -64,6 +64,7 @@ cd ${DIR}
 
 echo "Import SQL definition"
 mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output-definition.sql
+sleep 1
 
 echo "Import SQL"
 mysql -h database -u mqaf -pmqaf mqaf < ${OUTPUT_DIR}/output.sql
