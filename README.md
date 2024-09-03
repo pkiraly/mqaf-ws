@@ -60,21 +60,7 @@ Other parameters
 * `sessionId` (optional, String) A string for a session identifier (that identifies a user session in an external system)
 * `reportId` (optional, String) A string for report identifier (that identifies an analysis workflow in an external system)
 
-Validate a binary marc file in pure MARC21 schema:
-```
-DIR=/path/to/files
-curl -X POST \
-     -F 'schemaStream=@${DIR}/dc-schema.yaml' \
-     -F 'schemaFormat=yaml' \
-     -F 'measurementsContent=@${DIR}/measurement.json' \
-     -F 'measurementsFormat=json' \
-     -F 'inputFile=${DIR}/UB_W-rzburg_Texte.xml' \
-     -F 'recordAddress=//oai:record' \
-     -F 'gzip=false' \
-     -F 'outputFormat=CSV' \
-     -F 'output=${DIR}/output.csv' \
-     http://localhost:8080/mqaf-ws/validate
-```
+### Output
 
 If it was successfull, the API returns a simple JSON report:
 
@@ -90,9 +76,7 @@ Where
   with the [MQAF Report](https://github.com/pkiraly/mqaf-report) tool.)
 - `errorMessage` provides some information about the error (if any).
 
-### Output
-
-The process produces output in two steps:
+The process moreover produces output files in two steps:
 
 1. The Java application iterates all the records of the input (based on the `recordAddress` parameter), and 
    generates a Comma Sperated Values file (the default name is `output.csv`, but that can be overwriten by the
@@ -109,6 +93,44 @@ The process produces output in two steps:
      - `0`: the number of records that failed the check against the rule
      - `1`: the number of records that passed the check against the rule
      - `NA`: the number of records that does not have the data element the rule checks
+
+### Examples:
+
+Validate a Dublin Core XML file using configuration files strored locally:
+```
+DIR=/path/to/files
+curl -X POST \
+     -F 'schemaStream=@${DIR}/dc-schema.yaml' \
+     -F 'schemaFormat=yaml' \
+     -F 'measurementsStream=@${DIR}/measurement.json' \
+     -F 'measurementsFormat=json' \
+     -F 'inputFile=${DIR}/UB_W-rzburg_Texte.xml' \
+     -F 'recordAddress=//oai:record' \
+     -F 'gzip=false' \
+     -F 'outputFormat=CSV' \
+     -F 'output=${DIR}/output.csv' \
+     http://localhost:8080/mqaf-ws/validate
+```
+
+Validate a LIDO XML file using configuration strings:
+```
+DIR=/path/to/files
+curl -X POST \
+     -w '\n' \
+     -F 'schemaContent={"format":"XML","fields":[{"name":"id","path":"lido:lido/lido:lidoRecID","extractable":true,"identifierField":true,"rules":[{"id":"idPattern","description":"The record ID should fit to a pattern","pattern":"^DE-Mb\\d+/lido-obj.*$"}]},{"name":"source","path":"lido:lido/lido:lidoRecID/@lido:source","extractable":true,"rules":[{"id":"proveninance","description":"The record should come from Foto Marburg","pattern":"^Deutsches Dokumentationszentrum für Kunstgeschichte - Bildarchiv Foto Marburg$"}]}],"namespaces":{"owl":"http://www.w3.org/2002/07/owl#","rdf":"http://www.w3.org/1999/02/22-rdf-syntax-ns#","gml":"http://www.opengis.net/gml","doc":"http://www.mda.org.uk/spectrumXML/Documentation","sch":"http://purl.oclc.org/dsdl/schematron","skos":"http://www.w3.org/2004/02/skos/core#","tei":"http://www.tei-c.org/ns/1.0","lido":"http://www.lido-schema.org","xlink":"http://www.w3.org/1999/xlink","smil20lang":"http://www.w3.org/2001/SMIL20/Language"}}' \
+     -F 'schemaFormat=yaml' \
+     -F 'measurementsContent={"fieldExtractorEnabled":true,"fieldExistenceMeasurementEnabled":false,"fieldCardinalityMeasurementEnabled":false,"completenessMeasurementEnabled":false,"tfIdfMeasurementEnabled":false,"problemCatalogMeasurementEnabled":false,"ruleCatalogMeasurementEnabled":true,"languageMeasurementEnabled":false,"multilingualSaturationMeasurementEnabled":false,"collectTfIdfTerms":false,"uniquenessMeasurementEnabled":false,"completenessCollectFields":false,"saturationExtendedResult":false,"checkSkippableCollections":false,"onlyIdInHeader":true,"ruleCheckingOutputType":"BOTH"}' \
+     -F 'measurementsFormat=json' \
+     -F 'gzip=false' \
+     -F 'outputFormat=CSV' \
+     -F "output=output.csv" \
+     -F "inputFile=${DIR}/lido.xml" \
+     -F 'recordAddress=lido:lido' \
+     -F 'inputFormat=xml' \
+     -F 'sessionId=abc' \
+     -F 'reportId=123' \
+     http://localhost:${PORT}/mqaf-ws/validate
+```
 
 ## Docker
 
