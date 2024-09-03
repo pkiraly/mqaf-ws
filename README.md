@@ -96,7 +96,7 @@ The process moreover produces output files in two steps:
 
 ### Examples:
 
-Validate a Dublin Core XML file using configuration files strored locally:
+Validate a Dublin Core XML file using configuration files stored locally:
 ```
 DIR=/path/to/files
 curl -X POST \
