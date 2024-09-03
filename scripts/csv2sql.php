@@ -55,9 +55,9 @@ function processCsv($csvFile, $table, $out) {
           array_walk($values, function (&$item) {
             $item = str_replace('"', '\\"', $item);
           });
-          $sql = sprintf("INSERT INTO %s (`%s`) VALUES (%s);\n",
+          $sql = sprintf("INSERT INTO `%s` (`%s`) VALUES (%s);\n",
             $table,
-            join('`,`', $columns),
+            join('`, `', $columns),
             str_putcsv2($values, ',', '"', $columns)
           );
           file_put_contents($out, $sql, FILE_APPEND);
