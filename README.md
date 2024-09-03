@@ -28,8 +28,8 @@ Schema configuration related parameters:
    If you use curl you can use the `-F measurementsContent=@filename` syntax to pass the content. 
    See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
 * `schemaFileName` (optional, String, default: "schema.json") The schema configuration file. The file should be available in
-   the container's `/opt/metadata-qa/config` directory.
-* `schemaFormat` (mandatory, String, default: "jaon") The format of the Schema file (`yaml` or `json`).
+   the container's `/opt/metadata-qa/input` directory.
+* `schemaFormat` (mandatory, String, default: "json") The format of the Schema file (`yaml` or `json`).
 
 Measurement configuration related parameters (see 
 [details](https://github.com/pkiraly/metadata-qa-api?tab=readme-ov-file#defining-measurementconfiguration-with-a-configuration-file)
@@ -41,7 +41,7 @@ about the configuration)
    See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
 * `measurementsFileName` (optional, String, default: "measurements.json") The measurement configuration file that
    describes what kind of quality measurements should be run. The file should be available in the container's
-   `/opt/metadata-qa/input` directory.
+   `/opt/metadata-qa/config` directory.
 * `measurementsFormat` (optional, String, default: "json") The format of the Schema file (`yaml` or `json`)
 
 Other parameters
