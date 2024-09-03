@@ -118,7 +118,7 @@ DIR=/path/to/files
 curl -X POST \
      -w '\n' \
      -F 'schemaContent={"format":"XML","fields":[{"name":"id","path":"lido:lido/lido:lidoRecID","extractable":true,"identifierField":true,"rules":[{"id":"idPattern","description":"The record ID should fit to a pattern","pattern":"^DE-Mb\\d+/lido-obj.*$"}]},{"name":"source","path":"lido:lido/lido:lidoRecID/@lido:source","extractable":true,"rules":[{"id":"proveninance","description":"The record should come from Foto Marburg","pattern":"^Deutsches Dokumentationszentrum für Kunstgeschichte - Bildarchiv Foto Marburg$"}]}],"namespaces":{"owl":"http://www.w3.org/2002/07/owl#","rdf":"http://www.w3.org/1999/02/22-rdf-syntax-ns#","gml":"http://www.opengis.net/gml","doc":"http://www.mda.org.uk/spectrumXML/Documentation","sch":"http://purl.oclc.org/dsdl/schematron","skos":"http://www.w3.org/2004/02/skos/core#","tei":"http://www.tei-c.org/ns/1.0","lido":"http://www.lido-schema.org","xlink":"http://www.w3.org/1999/xlink","smil20lang":"http://www.w3.org/2001/SMIL20/Language"}}' \
-     -F 'schemaFormat=yaml' \
+     -F 'schemaFormat=json' \
      -F 'measurementsContent={"fieldExtractorEnabled":true,"fieldExistenceMeasurementEnabled":false,"fieldCardinalityMeasurementEnabled":false,"completenessMeasurementEnabled":false,"tfIdfMeasurementEnabled":false,"problemCatalogMeasurementEnabled":false,"ruleCatalogMeasurementEnabled":true,"languageMeasurementEnabled":false,"multilingualSaturationMeasurementEnabled":false,"collectTfIdfTerms":false,"uniquenessMeasurementEnabled":false,"completenessCollectFields":false,"saturationExtendedResult":false,"checkSkippableCollections":false,"onlyIdInHeader":true,"ruleCheckingOutputType":"BOTH"}' \
      -F 'measurementsFormat=json' \
      -F 'gzip=false' \
