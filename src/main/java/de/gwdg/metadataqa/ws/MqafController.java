@@ -214,7 +214,7 @@ public class MqafController {
     createDatabaseDefinition(inputParameters);
     // sudo -u www-data
     List<String> commands = List.of(
-      String.format("php /opt/metadata-qa/scripts/csv2sql.php --csvFile %s --tableName 'output' --outputDir %s",
+      String.format("php /opt/metadata-qa/scripts/csv2sql.php --csvFile %s --tableName output --outputDir %s",
         inputParameters.getOutputFilePath(), inputParameters.getReportDir()),
       /*
       String.format("mysql -h database -u mqaf -pmqaf mqaf < %s/output-definition.sql",
