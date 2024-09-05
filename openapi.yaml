@@ -78,13 +78,16 @@ paths:
           type: string
       - name: inputFormat
         in: query
-        description: The format of input file if it is a JSON (if the file extension is XML or CSV you do not have to specify)
+        description: >
+          The format of input file if it is a JSON (if the file extension is XML or CSV you do not have to specify). Possible values:
+           * `ndjson` - line delimited JSON in which every line is a new record (the default)
+           * `json-array` - JSON file that contains an array of objects
         required: false
         schema:
           type: string
           enum:
-            - ndjson: line delimited JSON in which every line is a new record (the default)
-            - json-array: JSON file that contains an array of objects
+            - ndjson
+            - json-array
       - name: gzip
         in: query
         description: A flag to denote if the input file is gzipped
@@ -166,4 +169,3 @@ paths:
                   errorMessage:
                     type: string
                     description: provides some information about the error (if any).
-
