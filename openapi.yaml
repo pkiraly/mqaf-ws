@@ -1,0 +1,169 @@
+openapi: 3.1.0
+info:
+  title: Metadata Quality Assessment Framework REST API
+  description: |-
+    Repositories:
+    - [MQAF Java API](https://gitlab.gwdg.de/pkiraly/qa-metadata-api)
+    - [MQAF Web Service](https://gitlab.gwdg.de/pkiraly/mqaf-ws)
+  contact:
+    email: peter.kiraly@gwdg.de
+  version: 1.0.0
+
+paths:
+  /validate:
+    parameters:
+      - name: schemaContent
+        in: query
+        description: A JSON or YAML string containing the schema configuration.
+        required: false
+        schema:
+          type: object
+      - name: schemaStream
+        in: query
+        description: The content stream of a schema configuration file encoded as multipart/form-data. It is used by web forms when you upload a file. If you use curl you can use the -F measurementsContent=@filename syntax to pass the content. See RFC 2388 and cURL manual.
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+      - name: schemaFileName
+        in: query
+        description: The schema configuration file. The file should be available in the container's /opt/metadata-qa/input directory.
+        required: false
+        schema:
+          type: string
+          default: schema.json
+      - name: schemaFormat
+        description: The format of the Schema file (yaml or json). If not set it will be json.
+        required: false
+        schema:
+          type: string
+          enum:
+            - yaml
+            - json
+      - name: measurementsContent
+        in: query
+        description: A JSON or YAML string containing the measurement configuration.
+        required: false
+        schema:
+          type: object
+      - name: measurementsStream
+        in: query
+        description: The content stream of a measurement configuration file encoded as multipart/form-data. It is used by web forms when you upload a file. If you use curl you can use the -F measurementsContent=@filename syntax to pass the content. See RFC 2388 and cURL manual.
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+      - name: measurementsFileName
+        in: query
+        description: The measurement configuration file that describes what kind of quality measurements should be run. The file should be available in the container's /opt/metadata-qa/config directory.
+        required: false
+        schema:
+          type: string
+          default: measurement.json
+      - name: measurementsFormat
+        description: The format of the measurement configuration file (yaml or json). If not set it will be json.
+        required: false
+        schema:
+          type: string
+          enum:
+            - yaml
+            - json
+      - name: inputFile
+        in: query
+        description: The name of the input file. It should be available at the `/opt/metadata-qa/input` directory or in `/opt/metadata-qa/input/<sessionId>/` directory if `sessionId` parameter is set.
+        required: true
+        schema:
+          type: string
+      - name: inputFormat
+        in: query
+        description: The format of input file if it is a JSON (if the file extension is XML or CSV you do not have to specify)
+        required: false
+        schema:
+          type: string
+          enum:
+            - ndjson: line delimited JSON in which every line is a new record (the default)
+            - json-array: JSON file that contains an array of objects
+      - name: gzip
+        in: query
+        description: A flag to denote if the input file is gzipped
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: recordAddress
+        in: query
+        description: The XPath expression that separates individual records within an XML file (it can be used if the inputFile is an XML file)
+        required: false
+        schema:
+          type: string
+      - name: output
+        in: query
+        description: The output file name
+        required: false
+        schema:
+          type: string
+          default: output.csv
+      - name: outputFormat
+        in: query
+        description: The output format
+        required: false
+        schema:
+          type: string
+          default: csv
+      - name: headers
+        in: query
+        description: A comma spearated string denoting the header of the input CSV (if the input is a CSV file without header line)
+        required: false
+        schema:
+          type: string
+      - name: sessionId
+        in: query
+        description: A string for a session identifier (that identifies a user session in an external system)
+        required: false
+        schema:
+          type: string
+      - name: reportId
+        in: query
+        description:  A string for report identifier (that identifies an analysis workflow in an external system)
+        required: false
+        schema:
+          type: string
+
+    post:
+      summary: Run validation
+      description: A schema is mandatory (you can use either schemaContent, schemaStream or schemaFileName parameters),
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Denotes if the process were successfully finished.
+                  report:
+                    type: string
+                    description: An URL where the report can be seen (given that the API is used together with the MQAF Report tool.)
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: false
+                    description: Denotes if the process were successfully finished.
+                  errorMessage:
+                    type: string
+                    description: provides some information about the error (if any).
+
