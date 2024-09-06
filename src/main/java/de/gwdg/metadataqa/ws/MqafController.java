@@ -268,40 +268,35 @@ public class MqafController {
     );
 
     Process process = null;
-    try {
-      for (String command : commands) {
-        logger.info(command);
+    for (String command : commands) {
+      logger.info(command);
+      try {
         process = Runtime.getRuntime().exec(command);
         TimeUnit.SECONDS.sleep(1);
-        StringBuilder textBuilder = new StringBuilder();
-        try (Reader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-          int c = 0;
-          while ((c = reader.read()) != -1) {
-            textBuilder.append((char) c);
-          }
-        }
-        logger.info(textBuilder.toString());
+        String output = readStream(process.getInputStream());
+        logger.info(output);
         logger.info("exitValue: " + process.exitValue());
-        // if (process.exitValue() != 0) {
-          InputStream error = process.getErrorStream();
-          textBuilder = new StringBuilder();
-          try (Reader reader = new BufferedReader(new InputStreamReader(error, StandardCharsets.UTF_8))) {
-            int c = 0;
-            while ((c = reader.read()) != -1) {
-              textBuilder.append((char) c);
-            }
-          }
-          if (!textBuilder.isEmpty())
-            logger.warning(textBuilder.toString());
-        // }
+        String error = readStream(process.getErrorStream());
+        if (!StringUtils.isEmpty(error))
+          logger.warning(error);
+      } catch (IOException | InterruptedException e) {
+        e.printStackTrace();
+        logger.severe(e.getMessage());
+        // throw new RuntimeException(e);
       }
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
     }
     logger.info("/postProcess()");
+  }
+
+  private static String readStream(InputStream stream) throws IOException {
+    StringBuilder textBuilder = new StringBuilder();
+    try (Reader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+      int c = 0;
+      while ((c = reader.read()) != -1) {
+        textBuilder.append((char) c);
+      }
+    }
+    return textBuilder.toString();
   }
 
   private static void createDatabaseDefinition(InputParameters inputParameters) {
