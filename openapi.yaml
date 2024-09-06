@@ -34,6 +34,7 @@ paths:
           type: string
           default: schema.json
       - name: schemaFormat
+        in: query
         description: The format of the Schema file (yaml or json). If not set it will be json.
         required: false
         schema:
@@ -63,6 +64,7 @@ paths:
           type: string
           default: measurement.json
       - name: measurementsFormat
+        in: query
         description: The format of the measurement configuration file (yaml or json). If not set it will be json.
         required: false
         schema:
