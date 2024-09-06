@@ -10,6 +10,15 @@ info:
   version: 1.0.0
 
 paths:
+  /:
+    get:
+      summary: Information about the application
+    responses:
+      '200':
+        description: It provides basic information about the application
+        schema:
+          type: string
+
   /validate:
     parameters:
       - name: schemaContent
@@ -78,10 +87,12 @@ paths:
             - json
       - name: inputFile
         in: query
-        description: The name of the input file. It should be available at the `/opt/metadata-qa/input` directory or in `/opt/metadata-qa/input/<sessionId>/` directory if `sessionId` parameter is set.
+        description: The name of the input files. This a repeatable parameter, so specifying multiple files is possible. They should be available at the `/opt/metadata-qa/input` directory or in `/opt/metadata-qa/input/<sessionId>/` directory if `sessionId` parameter is set.
         required: true
         schema:
-          type: string
+          type: array
+          items:
+            type: string
       - name: inputFormat
         in: query
         description: >
