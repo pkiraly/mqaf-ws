@@ -79,8 +79,8 @@ public class MqafController {
     @RequestParam(value = "inputFile") String[] inputFiles,
     @RequestParam(value = "inputFormat", defaultValue = "") String inputFormat,
     @RequestParam(value = "gzip", defaultValue = "false") boolean gzip,
-    @RequestParam(value = "outputFormat", defaultValue = "ndjson") String outputFormat,
-    @RequestParam(value = "output", defaultValue = "") String outputFile,
+    @RequestParam(value = "outputFormat", defaultValue = "CSV") String outputFormat,
+    @RequestParam(value = "output", defaultValue = "output.csv") String outputFile,
     @RequestParam(value = "recordAddress", defaultValue = "") String recordAddress,
     @RequestParam(value = "sessionId", defaultValue = "") String sessionId,
     @RequestParam(value = "reportId", defaultValue = "") String reportId,
@@ -118,12 +118,12 @@ public class MqafController {
       if (!dir.exists()) {
         dir.mkdirs();
       }
-      outputFile = getOutputFilePath(outputFile, inputParameters);
-      inputParameters.setOutputFilePath(outputFile);
+      String outputFilePath = getOutputFilePath(outputFile, inputParameters);
+      inputParameters.setOutputFilePath(outputFilePath);
       inputParameters.saveInputParameters();
 
       ResultWriter outputWriter = !outputFile.equals("")
-        ? RecordFactory.getResultWriter(outputFormat, outputFile)
+        ? RecordFactory.getResultWriter(outputFormat, outputFilePath)
         : RecordFactory.getResultWriter(outputFormat);
 
       if (recordAddress.equals(""))

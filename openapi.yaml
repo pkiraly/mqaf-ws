@@ -129,10 +129,20 @@ paths:
           default: output.csv
       - name: outputFormat
         in: query
-        description: The output format
+        description: >
+          The output format
+           * `csv` - comma separated values
+           * `json` - JSON
+           * `ndjson` - new line delimited JSON
+           * `csvjson` - json encoded in csv; useful for relational database bulk loading
         required: false
         schema:
           type: string
+          enum:
+            - csv
+            - json
+            - ndjson
+            - csvjson
           default: csv
       - name: headers
         in: query

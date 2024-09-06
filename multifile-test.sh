@@ -5,7 +5,7 @@ TYPE=$1
 if [[ "$TYPE" = "aqinda" ]]; then
   PORT=9090
   INPUT_FILE1=dc7d4e47-e1b1-4ea3-93b1-e8fd9bacc14c_LIDO-v1.1-Example_FMobj00154983-LaPrimavera.xml
-  INPUT_FILE2=dc7d4e47-e1b1-4ea3-93b1-e8fd9bacc14c_LIDO-v1.1-Example_FMobj00154983-LaPrimavera.xml
+  INPUT_FILE2=1ea2913d-2adf-4945-9fe2-96c4f6017ac0_LIDO-Example_FMobj20344012-Fontana_del_Moro.xml
 else
   PORT=8080
   INPUT_FILE1=LIDO-v1.1-Example_FMobj00154983-LaPrimavera.xml
