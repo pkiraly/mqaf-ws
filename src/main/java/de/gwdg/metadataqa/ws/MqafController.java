@@ -95,6 +95,12 @@ public class MqafController {
       if (inputFiles == null || inputFiles.length == 0)
         throw new IllegalArgumentException("No input files specified!");
 
+      // initialize output
+      // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
+      // write to std out if no file was given
+      inputParameters.setOutputFile(outputFile);
+      inputParameters.setReportPath(getWebPath(sessionId, reportId));
+
       Schema schema = getSchema(schemaStream, schemaContent, schemaFileName, schemaFormat, inputParameters);
       logger.info("schema: " + Utils.toJson(schema));
 
@@ -107,12 +113,6 @@ public class MqafController {
       CalculatorFacade calculator = new CalculatorFacade(measurementConfig);
       // set the schema which describes the source
       calculator.setSchema(schema);
-
-      // initialize output
-      // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
-      // write to std out if no file was given
-      inputParameters.setOutputFile(outputFile);
-      inputParameters.setReportPath(getWebPath(sessionId, reportId));
 
       File dir = new File(mqafConfiguration.getOutputDir(), inputParameters.getReportPath());
       if (!dir.exists()) {

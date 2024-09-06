@@ -139,6 +139,7 @@ public class InputParameters {
    */
   private void saveToFile(String content, String schemaFile) throws IOException {
     File exportSchemaFile = new File(getReportDir() + "/" + schemaFile);
+    logger.info("save file: " + exportSchemaFile.getAbsolutePath());
     FileUtils.writeStringToFile(exportSchemaFile, content, Charset.forName("UTF-8"));
   }
 
