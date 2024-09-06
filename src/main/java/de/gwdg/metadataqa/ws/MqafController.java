@@ -93,7 +93,7 @@ public class MqafController {
       inputParameters.setReportId(reportId);
 
       Schema schema = getSchema(schemaStream, schemaContent, schemaFileName, schemaFormat, inputParameters);
-      logger.info("schema: " + schema);
+      logger.info("schema: " + Utils.toJson(schema));
 
       MeasurementConfiguration measurementConfig = getMeasurementConfig(measurementsContent, measurementsStream, measurementsFileName, measurementsFormat, inputParameters);
       logger.info(String.format("isUniquenessMeasurementEnabled: %s", measurementConfig.isUniquenessMeasurementEnabled()));
