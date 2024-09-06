@@ -17,7 +17,9 @@ paths:
         description: A JSON or YAML string containing the schema configuration.
         required: false
         schema:
-          type: object
+          type: string
+# TODO: create a complex structure of the schema configuration
+#          type: object
       - name: schemaStream
         in: query
         description: The content stream of a schema configuration file encoded as multipart/form-data. It is used by web forms when you upload a file. If you use curl you can use the -F measurementsContent=@filename syntax to pass the content. See RFC 2388 and cURL manual.
@@ -47,7 +49,9 @@ paths:
         description: A JSON or YAML string containing the measurement configuration.
         required: false
         schema:
-          type: object
+          type: string
+          # TODO: create a complex structure of the measurement configuration
+          #          type: object
       - name: measurementsStream
         in: query
         description: The content stream of a measurement configuration file encoded as multipart/form-data. It is used by web forms when you upload a file. If you use curl you can use the -F measurementsContent=@filename syntax to pass the content. See RFC 2388 and cURL manual.
