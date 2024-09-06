@@ -76,7 +76,7 @@ public class MqafController {
     @RequestParam(value = "measurementsFileName", defaultValue = "measurements.json") String measurementsFileName,
     @RequestParam(value = "measurementsFormat", defaultValue = "json") String measurementsFormat,
     @RequestParam(value = "headers", defaultValue = "") String headers,
-    @RequestParam(value = "inputFile", defaultValue = "") String inputFile,
+    @RequestParam(value = "inputFile") String[] inputFiles,
     @RequestParam(value = "inputFormat", defaultValue = "") String inputFormat,
     @RequestParam(value = "gzip", defaultValue = "false") boolean gzip,
     @RequestParam(value = "outputFormat", defaultValue = "ndjson") String outputFormat,
@@ -87,10 +87,13 @@ public class MqafController {
     Model model
   ) {
     logger.info("validate");
+    logger.info("inputFiles: " + StringUtils.join(inputFiles, ", "));
     try {
       InputParameters inputParameters = new InputParameters(mqafConfiguration);
       inputParameters.setSessionId(sessionId);
       inputParameters.setReportId(reportId);
+      if (inputFiles == null || inputFiles.length == 0)
+        throw new IllegalArgumentException("No input files specified!");
 
       Schema schema = getSchema(schemaStream, schemaContent, schemaFileName, schemaFormat, inputParameters);
       logger.info("schema: " + Utils.toJson(schema));
@@ -104,12 +107,6 @@ public class MqafController {
       CalculatorFacade calculator = new CalculatorFacade(measurementConfig);
       // set the schema which describes the source
       calculator.setSchema(schema);
-
-      // initialize input
-      InputFormat inputFormatEnum = InputFormat.byCode(inputFormat);
-      String subfolder = System.getenv().get("UPLOAD_FOLDER");
-      String inputFilePath = getInputFilePath(inputFile, subfolder);
-      RecordReader inputReader = RecordFactory.getRecordReader(inputFilePath, calculator, gzip, inputFormatEnum);
 
       // initialize output
       // String outFormat = cmd.getOptionValue(OUTPUT_FORMAT, NDJSON);
@@ -131,27 +128,39 @@ public class MqafController {
 
       if (recordAddress.equals(""))
         recordAddress = null;
-      if (inputReader instanceof XMLRecordReader && recordAddress != null)
-        ((XMLRecordReader)inputReader).setRecordAddress(recordAddress);
 
-      long counter = 0;
+      // initialize input
+      InputFormat inputFormatEnum = InputFormat.byCode(inputFormat);
+      String subfolder = System.getenv().get("UPLOAD_FOLDER");
+
       List<String> header = calculator.getHeader();
-      logger.info("header: " + StringUtils.join(header, " -- "));
+      // logger.info("header: " + StringUtils.join(header, " -- "));
       outputWriter.writeHeader(header);
+      for (String inputFile: inputFiles) {
+        logger.info("processing inputFile: " + inputFile);
+        String inputFilePath = getInputFilePath(inputFile, subfolder);
+        if (!(new File(inputFilePath)).exists())
+          throw new IllegalArgumentException(String.format("Input file %s does not exist! (path: %s)", inputFile, inputFilePath));
+        RecordReader inputReader = RecordFactory.getRecordReader(inputFilePath, calculator, gzip, inputFormatEnum);
 
-      logger.info("start reading");
-      while (inputReader.hasNext()) {
-        Map<String, List<MetricResult>> measurement = inputReader.next();
-        outputWriter.writeResult(measurement);
+        if (inputReader instanceof XMLRecordReader && recordAddress != null)
+          ((XMLRecordReader)inputReader).setRecordAddress(recordAddress);
 
-        // update process
-        counter++;
-        if (counter % 50 == 0) {
-          logger.info(String.format("Processed %s records. ", counter));
+        long counter = 0;
+        logger.info("start reading");
+        while (inputReader.hasNext()) {
+          Map<String, List<MetricResult>> measurement = inputReader.next();
+          outputWriter.writeResult(measurement);
+
+          counter++;
+          if (counter % 50 == 0) {
+            logger.info(String.format("Processed %s records. ", counter));
+          }
         }
+        logger.info("end reading");
+        logger.info(String.format("Assessment completed successfully with %s records. ", counter));
       }
-      logger.info("end reading");
-      logger.info(String.format("Assessment completed successfully with %s records. ", counter));
+
       outputWriter.close();
 
       postProcess(inputParameters);
