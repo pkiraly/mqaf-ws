@@ -13,11 +13,13 @@ paths:
   /:
     get:
       summary: Information about the application
-    responses:
-      '200':
-        description: It provides basic information about the application
-        schema:
-          type: string
+      responses:
+        '200':
+          description: basic information about the application
+          content:
+            text/plain:
+              schema:
+                type: string
 
   /validate:
     parameters:
