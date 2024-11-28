@@ -87,6 +87,7 @@ public class MqafController {
     Model model
   ) {
     logger.info("validate");
+    logger.info(String.format("parameters: schemaContent: %s, schemaStream: %s, schemaFileName: %s, schemaFormat: %s, measurementsContent: %s, measurementsStream: %s, measurementsFileName: %s, measurementsFormat: %s, headers: %s, inputFiles: %s, inputFormat: %s, gzip: %s, outputFormat: %s, outputFile: %s, recordAddress: %s, sessionId: %s, reportId: %s", schemaContent, schemaStream, schemaFileName, schemaFormat, measurementsContent, measurementsStream, measurementsFileName, measurementsFormat, headers, inputFiles, inputFormat, gzip, outputFormat, outputFile, recordAddress, sessionId, reportId));
     logger.info("inputFiles: " + StringUtils.join(inputFiles, ", "));
     try {
       InputParameters inputParameters = new InputParameters(mqafConfiguration);
