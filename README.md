@@ -19,7 +19,7 @@ cp tartget/mqaf-ws.war path/to/tomcat/webapps-javaee
 
 The REST API endpoint is available at https://YOURSERVER/ws/validate
 
-You can use the following parameters (see more details [here](https://github.com/pkiraly/metadata-qa-marc#validating-marc-records)):
+You can use the following parameters for a POST request:
 
 Schema configuration related parameters:
 * `schemaContent` (optional, String, default: "") A JSON or YAML string containing the schema configuration.
