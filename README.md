@@ -19,7 +19,7 @@ cp tartget/mqaf-ws.war path/to/tomcat/webapps-javaee
 
 The REST API endpoint is available at https://YOURSERVER/ws/validate
 
-You can use the following parameters for a POST request:
+You can use the following parameters for a POST request (see also [OpenAPI document](openapi.yaml)).
 
 Schema configuration related parameters:
 * `schemaContent` (optional, String, default: "") A JSON or YAML string containing the schema configuration.
