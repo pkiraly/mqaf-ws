@@ -19,15 +19,15 @@ cp tartget/mqaf-ws.war path/to/tomcat/webapps-javaee
 
 The REST API endpoint is available at https://YOURSERVER/ws/validate
 
-You can use the following parameters (see more details [here](https://github.com/pkiraly/metadata-qa-marc#validating-marc-records)):
+You can use the following parameters for a POST request (see also [OpenAPI document](openapi.yaml)).
 
 Schema configuration related parameters:
-* `schemaContent` (optional, String, default: "") A JSON or YAML string containing the schema configuration.
-* `schemaStream` (optional, multipart/form-data, default: null) The content stream of a schema configuration file
+* `schemaContent` (optional, String, default: "") A JSON or YAML string containing the schema.
+* `schemaStream` (optional, multipart/form-data, default: null) The content stream of a schema file
    encoded as multipart/form-data. It is used by web forms when you upload a file.
    If you use curl you can use the `-F measurementsContent=@filename` syntax to pass the content. 
    See [RFC 2388](https://datatracker.ietf.org/doc/html/rfc2388) and [cURL manual](https://curl.se/docs/manpage.html#-F).
-* `schemaFileName` (optional, String, default: "schema.json") The schema configuration file. The file should be available in
+* `schemaFileName` (optional, String, default: "schema.json") The schema file. The file should be available in
    the container's `/opt/metadata-qa/input` directory.
 * `schemaFormat` (mandatory, String, default: "json") The format of the Schema file (`yaml` or `json`).
 
@@ -44,7 +44,7 @@ about the configuration)
    `/opt/metadata-qa/config` directory.
 * `measurementsFormat` (optional, String, default: "json") The format of the Schema file (`yaml` or `json`)
 
-Other parameters
+Input related parameters
 * `inputFile` (optional, String) The name of the input file. It should be available at the `/opt/metadata-qa/input` directory.
 * `inputFormat` (optional, String) The format of input file if it is a JSON (if the file extension is 
   XML or CSV you do not have to specify)
@@ -53,10 +53,14 @@ Other parameters
 * `gzip` (optional, String representing a boolean, default: "false") A flag to denote if the input file is gzipped
 * `recordAddress` (optional, String) The XPath expression that separates individual records within an XML file 
     (it can be used if the `inputFile` is an XML file)
-* `output` (mandatory, String) The output file name
-* `outputFormat` (optional, String, defaultValue = "csv") The output format
 * `headers` (optional, String) A comma spearated string denoting the header of the input CSV 
+
+Output related parameters:
+* `output` (mandatory, String) The output file name
+* `outputFormat` (optional, String, default: "csv") The output format, one of `csv`, `json`, `ndjson`, `csvjson`
    (if the input is a CSV file without header line)
+
+Other parameters:
 * `sessionId` (optional, String) A string for a session identifier (that identifies a user session in an external system)
 * `reportId` (optional, String) A string for report identifier (that identifies an analysis workflow in an external system)
 
