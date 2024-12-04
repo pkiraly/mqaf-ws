@@ -4,6 +4,10 @@ test-aqinda/output/
 test-europeana/output/
 mysql-data/
 
+# local directories mounted as Docker volumes by default
+./input
+./output
+
 # Compiled class file
 *.class
 
