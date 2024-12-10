@@ -2,7 +2,7 @@
 REST API for the Metadata Quality Assessment Framework
 
 ## Build and deploy the tool
-build
+Build (requires JDK 17):
 ```
 mvn clean package
 ```
