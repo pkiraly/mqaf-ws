@@ -15,6 +15,12 @@ cp tartget/mqaf-ws.war path/to/tomcat/webapps-javaee
 ```
 - start Tomcat
 
+## Environmental variables
+
+* `REPORT_WEBHOST`: the webhost of the reporting tool (such as "localhost" or "https://my.domain.org")
+* `REPORT_WEBPORT`: the web port of the reporting tool (such as 8080, or 90)
+* `REPORT_PATH`: the web path of the reporting tool (such as "/mqaf", "mqaf", or even "")
+
 ## Usage
 
 The REST API endpoint is available at https://YOURSERVER/ws/validate

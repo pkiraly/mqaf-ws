@@ -173,9 +173,7 @@ public class MqafController {
         .headers(responseHeaders)
         .body(Utils.toJson(Map.of(
           "success", true,
-          "report", String.format("http://%s:%s/%s",
-            System.getenv().get("REPORT_WEBHOST"), System.getenv().get("REPORT_WEBPORT"),
-            getWebPath(sessionId, reportId))
+          "report", getReportUrl(sessionId, reportId)
         )));
 
     } catch (Exception e) {
@@ -197,6 +195,26 @@ public class MqafController {
           "success", false,
           "errorMessage", e.getMessage())));
     }
+  }
+
+  private String getReportUrl(String sessionId, String reportId) {
+    String host = System.getenv().get("REPORT_WEBHOST");
+    String port = System.getenv().get("REPORT_WEBPORT");
+    String path = System.getenv().get("REPORT_PATH");
+    StringBuilder sb = new StringBuilder();
+    if (StringUtils.isNotBlank(host)) {
+      if (!host.startsWith("http"))
+        sb.append("http://");
+      sb.append(host);
+    }
+    if (StringUtils.isNotBlank(port)) {
+      sb.append(":").append(port);
+    }
+    if (StringUtils.isNotBlank(path)) {
+      sb.append(path);
+    }
+    sb.append(getWebPath(sessionId, reportId));
+    return sb.toString();
   }
 
   /**
