@@ -1,6 +1,6 @@
 FROM tomcat:10.0.11-jdk17-openjdk-slim
-ENV RUN_USER nobody
-ENV RUN_GROUP 0
+ENV RUN_USER=nobody
+ENV RUN_GROUP=0
 ENV TZ=Europe/Berlin
 
 RUN  mkdir -p /opt/metadata-qa/input \

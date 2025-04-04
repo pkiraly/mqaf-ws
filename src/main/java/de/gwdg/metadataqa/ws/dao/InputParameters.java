@@ -5,6 +5,7 @@ import de.gwdg.metadataqa.api.configuration.ConfigurationReader;
 import de.gwdg.metadataqa.api.configuration.MeasurementConfiguration;
 import de.gwdg.metadataqa.api.configuration.SchemaConfiguration;
 import de.gwdg.metadataqa.api.json.DataElement;
+import de.gwdg.metadataqa.api.schema.BaseSchema;
 import de.gwdg.metadataqa.api.schema.Schema;
 import de.gwdg.metadataqa.ws.MqafConfiguration;
 import de.gwdg.metadataqa.ws.Utils;
@@ -135,11 +136,16 @@ public class InputParameters {
   }
 
   private void addId(Schema schema) {
+    logger.info("Add id: " + Utils.toJson(schema));
     DataElement id = schema.getPathByLabel("id");
+    logger.info("id: " + id);
     if (id == null) {
-      id = new DataElement("id", "/child::lidoRecID").setExtractable();
-      schema.getPaths().add(0, id);
+      ((BaseSchema)schema).addField(new DataElement("id", "/child::lidoRecID").setExtractable());
+      // schema.getPathByLabel("id").setExtractable();
+      //schema.getPaths().add(0, id);
+      //schema.addExtractableField();
     }
+    logger.info("after: " + Utils.toJson(schema));
   }
 
   /**
