@@ -206,9 +206,9 @@ public class MqafController {
       if (!host.startsWith("http"))
         sb.append("http://");
       sb.append(host);
-    }
-    if (StringUtils.isNotBlank(port)) {
-      sb.append(":").append(port);
+      if (StringUtils.isNotBlank(port)) {
+        sb.append(":").append(port);
+      }
     }
     if (StringUtils.isNotBlank(path)) {
       sb.append(path);
@@ -370,7 +370,7 @@ public class MqafController {
 
   private static String createDatabaseDefinitionSQL(Map<String, String> mapping) {
     List<String> lines = new ArrayList<>();
-    lines.add(String.format("CREATE TABLE %s (", "output"));
+    lines.add(String.format("CREATE TABLE IF NOT EXISTS %s (", "output"));
     List<String> fields = new ArrayList<>();
     for (Map.Entry<String, String> entry : mapping.entrySet())
       fields.add(String.format("  `%s` %s", entry.getKey(), entry.getValue()));

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.gwdg.metadataqa.api.configuration.ConfigurationReader;
 import de.gwdg.metadataqa.api.configuration.MeasurementConfiguration;
 import de.gwdg.metadataqa.api.configuration.SchemaConfiguration;
+import de.gwdg.metadataqa.api.json.DataElement;
 import de.gwdg.metadataqa.api.schema.Schema;
 import de.gwdg.metadataqa.ws.MqafConfiguration;
 import de.gwdg.metadataqa.ws.Utils;
@@ -106,12 +107,14 @@ public class InputParameters {
         switch (schemaFormat) {
           case YAML:
             schema = Utils.loadYaml(schemaContent, SchemaConfiguration.class).asSchema();
+            addId(schema);
             this.schemaFile = "schema.yaml";
             saveToFile(schemaContent, this.schemaFile);
             break;
           case JSON:
           default:
             schema = Utils.loadJson(schemaContent, SchemaConfiguration.class).asSchema();
+            addId(schema);
             this.schemaFile = "schema.json";
             saveToFile(schemaContent, this.schemaFile);
             break;
@@ -129,6 +132,14 @@ public class InputParameters {
       logger.severe(e.getMessage());
     }
     return schema;
+  }
+
+  private void addId(Schema schema) {
+    DataElement id = schema.getPathByLabel("id");
+    if (id == null) {
+      id = new DataElement("id", "/child::lidoRecID").setExtractable();
+      schema.getPaths().add(0, id);
+    }
   }
 
   /**
