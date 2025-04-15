@@ -66,8 +66,14 @@ public class MqafController {
   }
 
   @GetMapping("/version")
-  public String version() {
-    return String.format("MQAF %s, MQAF-WS %s", de.gwdg.metadataqa.api.cli.Version.getVersion(), Version.getVersion());
+  public ResponseEntity<String> version() {
+    return ResponseEntity.ok()
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(getBaseResponseHeaders())
+      .body(Utils.toJson(Map.of(
+        "MQAF API", de.gwdg.metadataqa.api.cli.Version.getVersion(),
+        "MQAF WS", Version.getVersion()
+      )));
   }
 
   @PostMapping("/validate")
@@ -170,12 +176,9 @@ public class MqafController {
 
       postProcess(inputParameters);
 
-      HttpHeaders responseHeaders = new HttpHeaders();
-      responseHeaders.set("Content-Type", MediaType.APPLICATION_JSON.toString());
-
       return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_JSON)
-        .headers(responseHeaders)
+        .headers(getBaseResponseHeaders())
         .body(Utils.toJson(Map.of(
           "success", true,
           "report", getReportUrl(sessionId, reportId)
@@ -190,12 +193,9 @@ public class MqafController {
       logger.severe(String.format("Assessment failed"));
       logger.severe(e.getClass() + " " + e.getMessage());
 
-      HttpHeaders responseHeaders = new HttpHeaders();
-      responseHeaders.set("Content-Type", MediaType.APPLICATION_JSON.toString());
-
       return ResponseEntity.internalServerError()
         .contentType(MediaType.APPLICATION_JSON)
-        .headers(responseHeaders)
+        .headers(getBaseResponseHeaders())
         .body(Utils.toJson(Map.of(
           "success", false,
           "errorMessage", e.getMessage())));
@@ -206,6 +206,7 @@ public class MqafController {
     String host = System.getenv().get("REPORT_WEBHOST");
     String port = System.getenv().get("REPORT_WEBPORT");
     String path = System.getenv().get("REPORT_PATH");
+    logger.info(String.format("host: %s, port: %s, path: %s", host, port, path));
     StringBuilder sb = new StringBuilder();
     if (StringUtils.isNotBlank(host)) {
       if (!host.startsWith("http"))
@@ -219,6 +220,7 @@ public class MqafController {
       sb.append(path);
     }
     sb.append(getWebPath(sessionId, reportId));
+    logger.info(String.format("ReportUrl: %s", sb.toString()));
     return sb.toString();
   }
 
@@ -410,5 +412,11 @@ public class MqafController {
       file = dir + separator + file;
     }
     return file;
+  }
+
+  private HttpHeaders getBaseResponseHeaders() {
+    HttpHeaders responseHeaders = new HttpHeaders();
+    responseHeaders.set("Content-Type", MediaType.APPLICATION_JSON.toString());
+    return responseHeaders;
   }
 }
