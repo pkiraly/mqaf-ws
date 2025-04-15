@@ -65,6 +65,11 @@ public class MqafController {
     return String.format("This is %s", appName);
   }
 
+  @GetMapping("/version")
+  public String version() {
+    return String.format("MQAF %s, MQAF-WS %s", de.gwdg.metadataqa.api.cli.Version.getVersion(), Version.getVersion());
+  }
+
   @PostMapping("/validate")
   public ResponseEntity<String> validate(
     @RequestParam(value = "schemaContent", defaultValue = "") String schemaContent,
