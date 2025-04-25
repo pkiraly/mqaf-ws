@@ -58,6 +58,10 @@ RUN apt-get update \
 COPY --chown=${RUN_USER}:${RUN_GROUP} target/mqaf-ws.war /usr/local/tomcat/webapps/
 COPY --chown=${RUN_USER}:${RUN_GROUP} scripts/* /opt/metadata-qa/scripts
 
+# append the attribute maxHttpHeaderSize="65536" in server.xml
+RUN sed -i 's,<Connector port="8080" protocol="HTTP/1.1",<Connector port="8080" protocol="HTTP/1.1" maxHttpHeaderSize="65536",' \
+    /usr/local/tomcat/conf/server.xml
+
 EXPOSE 8080
 
 CMD ["catalina.sh", "run"]
